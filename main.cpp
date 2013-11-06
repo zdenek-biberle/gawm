@@ -9,54 +9,9 @@
 #include <unistd.h>
 #include <iostream>
 #include <map>
-#include <cstdbool>
 
 #include "utils.hpp"
-
-struct GawmWindow
-{
-	GawmWindow():
-		x(-1),
-		y(-1),
-		width(-1),
-		height(-1),
-		color(nullptr)
-	{}
-	
-	int x;
-	int y;
-	int width;
-	int height;
-	const GLubyte* color;
-};
-
-static GLubyte colors[] = 
-{
-	0,128,128, 
-	0,128,255, 
-	0,255,128, 
-	0,255,255, 
-	128,0,128, 
-	128,0,255, 
-	128,128,0, 
-	128,128,128, 
-	128,128,255, 
-	128,255,128, 
-	128,255,255, 
-	255,0,128, 
-	255,0,255, 
-	255,128,0, 
-	255,128,128, 
-	255,128,255, 
-	255,255,0, 
-	255,255,128, 
-	255,255,255
-};
-
-const GLubyte* selectRandomColor()
-{
-	return colors + (rand() % 19)*3;
-}
+#include "window.hpp"
 
 int main()
 {
@@ -138,29 +93,23 @@ int main()
 	
 	// Odchytavani klaves pro Window manager
 	KeyCode Escape = XKeysymToKeycode(display, XStringToKeysym("Escape"));
-	XGrabKey(display, Escape, Mod4Mask, window, true, GrabModeSync, GrabModeSync); // Mod4Mask / AnyModifier
+	XGrabKey(display, Escape, Mod4Mask, window, True, GrabModeSync, GrabModeSync); // Mod4Mask / AnyModifier
 	XSelectInput(display, window, KeyPressMask);
 	
 	while (true)
 	{
+		// pozadi plochy
 		glClearColor(0.25, 0.25, 0.25, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
 		
-		// Tohle predelat na VBO nebo neco takovyho
 		glBegin(GL_QUADS);
 		for(auto& knownWindow : knownWindows)
 		{
-			GawmWindow& gawmWindow = knownWindow.second;
-			glColor3ubv(gawmWindow.color);
-			glVertex2i(gawmWindow.x, gawmWindow.y);
-			glVertex2i(gawmWindow.x, gawmWindow.y + gawmWindow.height);
-			glVertex2i(gawmWindow.x + gawmWindow.width, gawmWindow.y + gawmWindow.height);
-			glVertex2i(gawmWindow.x + gawmWindow.width, gawmWindow.y);
+			knownWindow.second.render();
 		}
 		glEnd();
 		
 		glXSwapBuffers(display, window);
-		//sleep(1);
 		
 		XEvent event;
 		XNextEvent(display, &event);
@@ -169,16 +118,7 @@ int main()
 			case CreateNotify:
 			{
 				XCreateWindowEvent& cwe = event.xcreatewindow;
-				GawmWindow& gawmWindow = knownWindows[cwe.window];
-				gawmWindow.x = cwe.x;
-				gawmWindow.y = cwe.y;
-				gawmWindow.width = cwe.width;
-				gawmWindow.height = cwe.height;
-				gawmWindow.color = selectRandomColor();
-				std::cout << "CreateNotify: Vytvoreno okno " << cwe.window << " na " 
-					<< cwe.x << ", " << cwe.y
-					<< " velikosti " << cwe.width << "x" << cwe.height
-					<< std::endl;
+				knownWindows[cwe.window] = GawmWindow(cwe.window, cwe.x, cwe.y, cwe.width, cwe.height);
 			}
 			break;
 			
@@ -186,7 +126,6 @@ int main()
 			{
 				XDestroyWindowEvent& dwe = event.xdestroywindow;
 				knownWindows.erase(dwe.window);
-				std::cout << "DestroyNotify: Zniceno okno " << dwe.window << std::endl;
 			}
 			break;
 			
@@ -201,18 +140,7 @@ int main()
 			case ConfigureNotify:
 			{
 				XConfigureEvent& xce = event.xconfigure;
-				GawmWindow& gawmWindow = knownWindows[xce.window];
-				gawmWindow.x = xce.x;
-				gawmWindow.y = xce.y;
-				gawmWindow.width = xce.width;
-				gawmWindow.height = xce.height;
-				if (gawmWindow.color == nullptr)
-				{
-					gawmWindow.color = selectRandomColor();
-				}
-				std::cout << "ConfigureNotify: Zmeneno okno " << xce.window
-					<< " s pozici " << xce.x << ", " << xce.y << " a velikosti "
-					<< xce.width << "x" << xce.height << std::endl;
+				knownWindows[xce.window].configure(xce.x,xce.y,xce.width,xce.height);
 			}
 			break;
 			
