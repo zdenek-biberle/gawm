@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <iostream>
 #include <map>
+#include <cstdbool>
 
 #include "utils.hpp"
 
@@ -107,7 +108,8 @@ int main()
 		display, overlayWindow, 
 		0, 0, 
 		overlayWindowAttribs.width, overlayWindowAttribs.height, 
-		0, visualInfo->depth, InputOutput, visualInfo->visual, CWBorderPixel | CWColormap, &windowAttribs);
+		0, visualInfo->depth, InputOutput, visualInfo->visual,
+		CWBorderPixel | CWColormap, &windowAttribs);
 	if (!window)
 	{
 		throw std::runtime_error("Nelze vytvorit okno. Bug?");
@@ -133,6 +135,11 @@ int main()
 	glScaled(1.0 / overlayWindowAttribs.width, 1.0 / overlayWindowAttribs.height, 0.5);
 	
 	std::map<Window, GawmWindow> knownWindows;
+	
+	// Odchytavani klaves pro Window manager
+	KeyCode Escape = XKeysymToKeycode(display, XStringToKeysym("Escape"));
+	XGrabKey(display, Escape, Mod4Mask, window, true, GrabModeSync, GrabModeSync); // Mod4Mask / AnyModifier
+	XSelectInput(display, window, KeyPressMask);
 	
 	while (true)
 	{
@@ -206,6 +213,15 @@ int main()
 				std::cout << "ConfigureNotify: Zmeneno okno " << xce.window
 					<< " s pozici " << xce.x << ", " << xce.y << " a velikosti "
 					<< xce.width << "x" << xce.height << std::endl;
+			}
+			break;
+			
+			case KeyPress: case KeyRelease:
+			{
+				if(event.xkey.keycode == Escape && event.xkey.state & Mod4Mask){
+					std::cout << "Stisknuto Win+Esc = Escape from window manager" << std::endl;
+					exit(0);
+				}
 			}
 			break;
 			

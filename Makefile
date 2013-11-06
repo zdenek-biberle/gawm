@@ -3,4 +3,5 @@ gawm: main.cpp
 	g++ -o gawm -std=c++11 main.cpp -lGL -lX11 -lXcomposite
 
 run: gawm
-	xinit ./gawm -- /usr/bin/Xephyr :2 &
+	killall gawm 2>/dev/null; xinit ./gawm -- /usr/bin/Xephyr :2 &
+
