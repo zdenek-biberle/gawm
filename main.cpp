@@ -12,89 +12,20 @@
 
 #include "utils.hpp"
 #include "window.hpp"
+#include "winmgr.hpp"
 
 int main()
 {
 	srand(time(nullptr));
 	
-	auto display = XOpenDisplay(nullptr);
-	UTILS_SCOPE_EXIT([&]{XCloseDisplay(display);});
-	auto rootWindow = DefaultRootWindow(display);
-	auto overlayWindow = XCompositeGetOverlayWindow(display, rootWindow);
-	UTILS_SCOPE_EXIT([&]{XCompositeReleaseOverlayWindow(display, rootWindow);});
-	
-	int glDisplayAttribs[] = 
-	{
-		GLX_DRAWABLE_TYPE,	GLX_WINDOW_BIT,
-		GLX_RENDER_TYPE,	GLX_RGBA_BIT,
-		GLX_RED_SIZE,		8,
-		GLX_GREEN_SIZE, 	8,
-		GLX_BLUE_SIZE, 		8,
-		GLX_ALPHA_SIZE, 	8,
-		GLX_DEPTH_SIZE, 	24,
-		GLX_STENCIL_SIZE, 	8,
-		GLX_DOUBLEBUFFER, 	True,
-		None
-	};
-	
-	// Najdeme vhodnou konfiguraci framebufferu
-	int configCount;
-	auto fbConfigs = glXChooseFBConfig(display, DefaultScreen(display), glDisplayAttribs, &configCount);
-	if (!fbConfigs)
-	{
-		throw std::runtime_error("Nenalezen config framebufferu, nevim co delat");
-	}
-	
-	auto fbConfig = fbConfigs[0]; // proste berem prvni konfiguraci
-	XFree(fbConfigs);
-	
-	// Podle konfigurace vytvorime okno
-	auto visualInfo = glXGetVisualFromFBConfig(display, fbConfig);
-	XSetWindowAttributes windowAttribs;
-	windowAttribs.background_pixmap = None;
-	windowAttribs.border_pixel = 0;
-	windowAttribs.colormap = XCreateColormap(display, overlayWindow, visualInfo->visual, AllocNone);
-	UTILS_SCOPE_EXIT([&]{XFreeColormap(display, windowAttribs.colormap);});
-	
-	XWindowAttributes overlayWindowAttribs;
-	XGetWindowAttributes(display, overlayWindow, &overlayWindowAttribs);
-	
-	auto window = XCreateWindow(
-		display, overlayWindow, 
-		0, 0, 
-		overlayWindowAttribs.width, overlayWindowAttribs.height, 
-		0, visualInfo->depth, InputOutput, visualInfo->visual,
-		CWBorderPixel | CWColormap, &windowAttribs);
-	if (!window)
-	{
-		throw std::runtime_error("Nelze vytvorit okno. Bug?");
-	}
-	UTILS_SCOPE_EXIT([&]{XDestroyWindow(display, window);});
-	
-	XFree(visualInfo);
-	
-	XStoreName(display, window, "OH GOD GAWM");
-	XMapWindow(display, window);
-	XSelectInput(display, rootWindow, SubstructureNotifyMask);
-	
-	// Vytvorime OGL kontext
-	auto ctx = glXCreateNewContext(display, fbConfig, GLX_RGBA_TYPE, nullptr, True);
-	XSync(display, False);
-	if (!ctx)
-	{
-		throw std::runtime_error("Nepodarilo se vytvorit OpenGL kontext");
-	}
-	UTILS_SCOPE_EXIT([&]{glXDestroyContext(display, ctx);});
-	glXMakeCurrent(display, window, ctx);
-	glTranslated(-1.0, -1.0, 0.0);
-	glScaled(1.0 / overlayWindowAttribs.width, 1.0 / overlayWindowAttribs.height, 0.5);
+	GawmWindowManager wm;
 	
 	std::map<Window, GawmWindow> knownWindows;
 	
 	// Odchytavani klaves pro Window manager
-	KeyCode Escape = XKeysymToKeycode(display, XStringToKeysym("Escape"));
-	XGrabKey(display, Escape, Mod4Mask, window, True, GrabModeSync, GrabModeSync); // Mod4Mask / AnyModifier
-	XSelectInput(display, window, KeyPressMask);
+	KeyCode Escape = XKeysymToKeycode(wm.display, XStringToKeysym("Escape"));
+	XGrabKey(wm.display, Escape, Mod4Mask, wm.window, True, GrabModeSync, GrabModeSync); // Mod4Mask / AnyModifier
+	XSelectInput(wm.display, wm.window, KeyPressMask);
 	
 	while (true)
 	{
@@ -109,10 +40,10 @@ int main()
 		}
 		glEnd();
 		
-		glXSwapBuffers(display, window);
+		glXSwapBuffers(wm.display, wm.window);
 		
 		XEvent event;
-		XNextEvent(display, &event);
+		XNextEvent(wm.display, &event);
 		switch (event.type)
 		{
 			case CreateNotify:

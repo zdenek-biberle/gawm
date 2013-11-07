@@ -1,4 +1,4 @@
-gawm: Makefile main.cpp utils.hpp window.hpp
+gawm: Makefile main.cpp utils.hpp window.hpp winmgr.hpp
 	# Jsem proste Biba
 	g++ -o gawm -std=c++11 main.cpp -lGL -lX11 -lXcomposite -g3
 
