@@ -17,6 +17,10 @@ public:
 	GawmWindowManager()
 	{
 		display = XOpenDisplay(nullptr);
+		if (!display)
+		{
+			throw std::runtime_error("Nepodarilo se otevrit display!");
+		}
 		rootWindow = DefaultRootWindow(display);
 		overlayWindow = XCompositeGetOverlayWindow(display, rootWindow);
 		initFbConfig();
@@ -42,10 +46,11 @@ public:
 		};
 		
 		int configCount;
+		
 		auto fbConfigs = glXChooseFBConfig(display, DefaultScreen(display), glDisplayAttribs, &configCount);
 		if (!fbConfigs)
 		{
-			throw std::runtime_error("Nenalezen config framebufferu, nevim co delat");
+			throw std::runtime_error("Nenalezena zadna konfigurace framebufferu odpovidajici atributum glDisplayAttribs! (Nepodporavana graficka karta?)");
 		}
 		fbConfig = fbConfigs[0]; // proste berem prvni konfiguraci
 		XFree(fbConfigs);
@@ -87,18 +92,16 @@ public:
 	}
 	
 	void initGL(){
-		
-		// Vytvorime OGL kontext
+		// Vytvoreni OpenGL kontextu
 		auto ctx = glXCreateNewContext(display, fbConfig, GLX_RGBA_TYPE, nullptr, True);
 		XSync(display, False);
 		if (!ctx)
 		{
-			throw std::runtime_error("Nepodarilo se vytvorit OpenGL kontext");
+			throw std::runtime_error("Nepodarilo se vytvorit OpenGL kontext!");
 		}
 		glXMakeCurrent(display, window, ctx);
-		glTranslated(-1.0, -1.0, 0.0);
-		glScaled(1.0 / overlayWindowAttribs.width, 1.0 / overlayWindowAttribs.height, 0.5);
-		
+		glScaled(1.0 / overlayWindowAttribs.width, -1.0 / overlayWindowAttribs.height, 0.5);
+		glTranslated(-overlayWindowAttribs.width, -overlayWindowAttribs.height, 0.0);
 	}
 	
 	void destroyGL(){
