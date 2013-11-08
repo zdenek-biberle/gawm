@@ -59,6 +59,7 @@ int main()
 				
 				XDestroyWindowEvent& dwe = event.xdestroywindow;
 				knownWindows.erase(dwe.window);
+				std::cout << "Erase done!" << std::endl;
 			}
 			break;
 			
@@ -74,6 +75,18 @@ int main()
 			{
 				XConfigureEvent& xce = event.xconfigure;
 				knownWindows.at(xce.window).configure(xce.x,xce.y,xce.width,xce.height);
+			}
+			break;
+			
+			case MapNotify:
+			{
+				knownWindows.at(event.xmap.window).setVisible(true);
+			}
+			break;
+			
+			case UnmapNotify:
+			{
+				knownWindows.at(event.xunmap.window).setVisible(false);
 			}
 			break;
 			

@@ -5,6 +5,7 @@ const GLubyte* selectRandomColor();
 
 struct GawmWindow
 {
+private:
 	GawmWindowManager* wm;
 	Window window;
 	int x;
@@ -13,7 +14,10 @@ struct GawmWindow
 	int height;
 	const GLubyte* color;
 	Pixmap pixmap;
-	
+	bool hasPixmap;
+	bool visible;
+
+public:
 	GawmWindow(GawmWindowManager *wm, Window window, int x, int y, int width, int height):
 		wm(wm),
 		window(window),
@@ -21,12 +25,12 @@ struct GawmWindow
 		y(y),
 		width(width),
 		height(height),
-		color(nullptr)
+		color(selectRandomColor()),
+		hasPixmap(false),
+		visible(false)
 	{
 		std::cout << "CreateNotify: Vytvoreno okno " << window << " na " << x << ", " << y
 		          << " velikosti " << width << "x" << height << std::endl;
-		
-		color = selectRandomColor();
 		
 		XCompositeRedirectWindow(wm->display, window, CompositeRedirectManual);
 		
@@ -53,19 +57,37 @@ struct GawmWindow
 	
 	void reloadPixmap(){
 		std::cout << "reload(" << wm->display << "," << window << ")" << std::endl;
-		pixmap = XCompositeNameWindowPixmap(wm->display, window);
+		if (isVisible())
+		{
+			pixmap = XCompositeNameWindowPixmap(wm->display, window);
+			XSync(wm->display, False);
+			hasPixmap = true;
+		}
 		std::cout << "reloadnuto" << std::endl;
 	}
 	
 	// Tohle predelat na VBO nebo neco takovyho
 	void render(){
-		glColor3ubv(color);
-		glVertex2i(x, y);
-		glVertex2i(x, y + height);
-		glVertex2i(x + width, y + height);
-		glVertex2i(x + width, y);
+		if(isVisible())
+		{
+			glColor3ubv(color);
+			glVertex2i(x, y);
+			glVertex2i(x, y + height);
+			glVertex2i(x + width, y + height);
+			glVertex2i(x + width, y);
+		}
 	}
 	
+	bool isVisible()
+	{
+		return visible;
+	}
+	
+	void setVisible(bool visible)
+	{
+		this->visible = visible;
+		reloadPixmap();
+	}
 };
 
 const GLubyte* selectRandomColor()
