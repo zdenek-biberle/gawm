@@ -57,6 +57,10 @@ strict:
 run: $(program)
 	xinit ./$(program) -- /usr/bin/Xephyr $(display) -screen 800x600 &
 
+# Pro Bibu, kterej ma malej kompl
+runSmall: $(program)
+	xinit ./$(program) -- /usr/bin/Xephyr $(display) -screen 640x480 &
+
 test: run
 	sleep 3
 	DISPLAY=$(display) xterm

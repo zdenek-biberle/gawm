@@ -106,8 +106,14 @@ public:
 				throw std::runtime_error("Nenašel jsem vhodný FBConfig pro pixmapu");
 			}
 
+			int pixmapAttribs[] = { GLX_TEXTURE_TARGET_EXT, GLX_TEXTURE_2D_EXT,
+					GLX_TEXTURE_FORMAT_EXT, GLX_TEXTURE_FORMAT_RGBA_EXT,
+					None };
+
 			pixmap = XCompositeNameWindowPixmap(wm->display, window);
-			glxPixmap = glXCreatePixmap(wm->display, fbConfigs[i], pixmap, nullptr);
+			std::cout << "pixmap: " << pixmap << std::endl;
+			glxPixmap = glXCreatePixmap(wm->display, fbConfigs[i], pixmap, pixmapAttribs);
+			std::cout << "glxPixmap: " << glxPixmap << std::endl;
 
 			glGenTextures (1, &glTexture);
 			
@@ -124,11 +130,8 @@ public:
 		if(isVisible())
 		{
 			glBindTexture(GL_TEXTURE_2D, glTexture);
-			
-			int pixmapAttribs[] = { GLX_TEXTURE_TARGET_EXT, GLX_TEXTURE_2D_EXT,
-                      GLX_TEXTURE_FORMAT_EXT, GLX_TEXTURE_FORMAT_RGBA_EXT,
-                      None };
-			glXBindTexImageEXT(wm->display, glxPixmap, GLX_FRONT_LEFT_EXT, pixmapAttribs);
+
+			glXBindTexImageEXT(wm->display, glxPixmap, GLX_FRONT_LEFT_EXT, nullptr);
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
