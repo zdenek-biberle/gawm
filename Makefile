@@ -20,7 +20,7 @@ CPP=g++
 CXX=$(CPP)
 
 # Link
-LINK=-lGL -lX11 -lXcomposite
+LINK=-lGLEW -lGL -lX11 -lXcomposite
 
 # Makra
 # MACROS=-D_XOPEN_SOURCE -D_XOPEN_SOURCE_EXTENDED
@@ -29,7 +29,7 @@ LINK=-lGL -lX11 -lXcomposite
 BRUTAL=-Wall -Wextra -Werror -Wno-unused-variable
 CXXFLAGS=-std=c++11 $(STRICT) -pedantic $(MACROS)
 
-SOURCES=main
+SOURCES=main gawmGl
 
 $(program): $(addprefix obj/,$(addsuffix .o,$(SOURCES)))
 	$(CXX) -o $@ $^ $(CXXFLAGS) $(LINK)
