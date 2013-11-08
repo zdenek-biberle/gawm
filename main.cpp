@@ -11,8 +11,9 @@
 #include <map>
 
 #include "utils.hpp"
-#include "window.hpp"
 #include "winmgr.hpp"
+#include "window.hpp"
+
 
 int main()
 {
@@ -49,7 +50,7 @@ int main()
 			case CreateNotify:
 			{
 				XCreateWindowEvent& cwe = event.xcreatewindow;
-				knownWindows[cwe.window] = GawmWindow(cwe.window, cwe.x, cwe.y, cwe.width, cwe.height);
+				knownWindows[cwe.window] = GawmWindow(&wm, cwe.window, cwe.x, cwe.y, cwe.width, cwe.height);
 			}
 			break;
 			
