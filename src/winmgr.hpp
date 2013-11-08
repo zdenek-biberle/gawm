@@ -1,11 +1,23 @@
 #ifndef WINMGR_HPP
 #define WINMGR_HPP
 
+#include "gawmGl.hpp"
+
+int xerrorhandler(Display *dsp, XErrorEvent *error)
+{
+	char errorstring[128];
+	XGetErrorText(dsp, error->error_code, errorstring, 128);
+ 
+	std::cerr << "ack!fatal: X error--" << errorstring << std::endl;
+	exit(-1);
+}
+
 class GawmWindowManager
 {
 public:
 	
 	Display *display;
+	int screen;
 	Window rootWindow;
 	Window overlayWindow;
 	Window window;
@@ -21,8 +33,10 @@ public:
 		{
 			throw std::runtime_error("Nepodarilo se otevrit display!");
 		}
+		screen = DefaultScreen(display);
 		rootWindow = DefaultRootWindow(display);
 		overlayWindow = XCompositeGetOverlayWindow(display, rootWindow);
+		XSetErrorHandler(xerrorhandler);
 		initFbConfig();
 		initWindow();
 		XSelectInput(display, rootWindow, SubstructureNotifyMask);
@@ -47,7 +61,7 @@ public:
 		
 		int configCount;
 		
-		auto fbConfigs = glXChooseFBConfig(display, DefaultScreen(display), glDisplayAttribs, &configCount);
+		auto fbConfigs = glXChooseFBConfig(display, screen, glDisplayAttribs, &configCount);
 		if (!fbConfigs)
 		{
 			throw std::runtime_error("Nenalezena zadna konfigurace framebufferu odpovidajici atributum glDisplayAttribs! (Nepodporavana graficka karta?)");
@@ -100,6 +114,7 @@ public:
 			throw std::runtime_error("Nepodarilo se vytvorit OpenGL kontext!");
 		}
 		glXMakeCurrent(display, window, ctx);
+		initGlFunctions();
 		glScaled(1.0 / overlayWindowAttribs.width, -1.0 / overlayWindowAttribs.height, 0.5);
 		glTranslated(-overlayWindowAttribs.width, -overlayWindowAttribs.height, 0.0);
 	}
