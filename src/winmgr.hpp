@@ -1,6 +1,7 @@
 #ifndef WINMGR_HPP
 #define WINMGR_HPP
 
+#include <X11/extensions/shape.h>
 #include "gawmGl.hpp"
 
 int xerrorhandler(Display *dsp, XErrorEvent *error)
@@ -41,7 +42,18 @@ public:
 		initWindow();
 		XSelectInput(display, rootWindow, SubstructureNotifyMask);
 		initGL();
+		allowInputPassthrough();
 	}
+	
+	~GawmWindowManager()
+	{
+		destroyGL();
+		destroyWindow();
+		XCompositeReleaseOverlayWindow(display, rootWindow);
+		XCloseDisplay(display);
+	}
+	
+private:
 	
 	void initFbConfig(){
 		
@@ -64,7 +76,7 @@ public:
 		auto fbConfigs = glXChooseFBConfig(display, screen, glDisplayAttribs, &configCount);
 		if (!fbConfigs)
 		{
-			throw std::runtime_error("Nenalezena zadna konfigurace framebufferu odpovidajici atributum glDisplayAttribs! (Nepodporavana graficka karta?)");
+			throw std::runtime_error("Nenalezena zadna konfigurace framebufferu odpovidajici atributum glDisplayAttribs! (Nepodporovana graficka karta?)");
 		}
 		fbConfig = fbConfigs[0]; // proste berem prvni konfiguraci
 		XFree(fbConfigs);
@@ -125,12 +137,11 @@ public:
 		glXDestroyContext(display, ctx);
 	}
 	
-	~GawmWindowManager()
-	{
-		destroyGL();
-		destroyWindow();
-		XCompositeReleaseOverlayWindow(display, rootWindow);
-		XCloseDisplay(display);
+	void allowInputPassthrough(){
+		XserverRegion region = XFixesCreateRegion(display, NULL, 0);
+		XFixesSetWindowShapeRegion(display, window, ShapeBounding, 0, 0, 0);
+		XFixesSetWindowShapeRegion(display, window, ShapeInput, 0, 0, region);
+		XFixesDestroyRegion(display, region);
 	}
 	
 };

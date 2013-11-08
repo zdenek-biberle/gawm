@@ -14,6 +14,28 @@
 #include "winmgr.hpp"
 #include "window.hpp"
 
+void render(GawmWindowManager* wm, boost::ptr_map<long unsigned int, GawmWindow>* knownWindows){
+	
+	// pozadi plochy
+	glClearColor(0.25, 0.25, 0.25, 1.0);
+	glClear(GL_COLOR_BUFFER_BIT);
+	glEnable(GL_TEXTURE_2D);
+	
+	for(auto knownWindow : *knownWindows)
+	{
+		knownWindow.second->render();
+	}
+	
+	GLenum err;
+	while ((err = glGetError()) != GL_NO_ERROR)
+	{
+		std::cout << "GL error: " << err << std::endl;
+	}
+	
+	glXSwapBuffers(wm->display, wm->window);
+	
+}
+
 int main()
 {
 	srand(time(nullptr));
@@ -29,22 +51,8 @@ int main()
 	
 	while (true)
 	{
-		// pozadi plochy
-		glClearColor(0.25, 0.25, 0.25, 1.0);
-		glClear(GL_COLOR_BUFFER_BIT);
-		glEnable(GL_TEXTURE_2D);
-		for(auto knownWindow : knownWindows)
-		{
-			knownWindow.second->render();
-		}
 		
-		GLenum err;
-		while ((err = glGetError()) != GL_NO_ERROR)
-		{
-			std::cout << "GL error: " << err << std::endl;
-		}
-		
-		glXSwapBuffers(wm.display, wm.window);
+		render(&wm, &knownWindows);
 		
 		XEvent event;
 		while(XCheckWindowEvent(wm.display, wm.rootWindow, SubstructureNotifyMask, &event) == True)

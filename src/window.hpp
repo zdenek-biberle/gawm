@@ -64,7 +64,7 @@ public:
 	void reloadPixmap(){
 		if (!hasPixmap && isVisible())
 		{
-			std::cout << "reload(" << wm->display << "," << window << ")" << std::endl;
+			std::cout << "reloadPixmap(" << wm->display << "," << window << ")" << std::endl;
 			XWindowAttributes attribs;
 			XGetWindowAttributes(wm->display, window, &attribs);
 
@@ -119,11 +119,10 @@ public:
 			
 			XSync(wm->display, False);
 			hasPixmap = true;
-			std::cout << "reloadnuto" << std::endl;
+			std::cout << "reload pixmapy uspesny" << std::endl;
 		}
 	}
 	
-	// Tohle predelat na VBO nebo neco takovyho
 	void render(){
 		reloadPixmap();
 		
