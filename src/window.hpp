@@ -14,16 +14,6 @@ struct GawmWindow
 	const GLubyte* color;
 	Pixmap pixmap;
 	
-	GawmWindow():
-		wm(NULL),
-		window(),
-		x(0),
-		y(0),
-		width(0),
-		height(0),
-		color(nullptr)
-	{}
-	
 	GawmWindow(GawmWindowManager *wm, Window window, int x, int y, int width, int height):
 		wm(wm),
 		window(window),
@@ -63,7 +53,7 @@ struct GawmWindow
 	
 	void reloadPixmap(){
 		std::cout << "reload(" << wm->display << "," << window << ")" << std::endl;
-		//pixmap = XCompositeNameWindowPixmap(wm->display, window);
+		pixmap = XCompositeNameWindowPixmap(wm->display, window);
 		std::cout << "reloadnuto" << std::endl;
 	}
 	

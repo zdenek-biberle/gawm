@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <unistd.h>
 #include <iostream>
-#include <map>
+#include <boost/ptr_container/ptr_map.hpp>
 
 #include "utils.hpp"
 #include "winmgr.hpp"
@@ -21,7 +21,7 @@ int main()
 	
 	GawmWindowManager wm;
 	
-	std::map<Window, GawmWindow> knownWindows;
+	boost::ptr_map<Window, GawmWindow> knownWindows;
 	
 	// Odchytavani klaves pro Window manager
 	KeyCode Escape = XKeysymToKeycode(wm.display, XStringToKeysym("Escape"));
@@ -35,9 +35,9 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT);
 		
 		glBegin(GL_QUADS);
-		for(auto& knownWindow : knownWindows)
+		for(auto knownWindow : knownWindows)
 		{
-			knownWindow.second.render();
+			knownWindow.second->render();
 		}
 		glEnd();
 		
@@ -50,12 +50,13 @@ int main()
 			case CreateNotify:
 			{
 				XCreateWindowEvent& cwe = event.xcreatewindow;
-				knownWindows[cwe.window] = GawmWindow(&wm, cwe.window, cwe.x, cwe.y, cwe.width, cwe.height);
+				knownWindows.insert(cwe.window, new GawmWindow(&wm, cwe.window, cwe.x, cwe.y, cwe.width, cwe.height));
 			}
 			break;
 			
 			case DestroyNotify:
 			{
+				
 				XDestroyWindowEvent& dwe = event.xdestroywindow;
 				knownWindows.erase(dwe.window);
 			}
@@ -72,7 +73,7 @@ int main()
 			case ConfigureNotify:
 			{
 				XConfigureEvent& xce = event.xconfigure;
-				knownWindows[xce.window].configure(xce.x,xce.y,xce.width,xce.height);
+				knownWindows.at(xce.window).configure(xce.x,xce.y,xce.width,xce.height);
 			}
 			break;
 			
