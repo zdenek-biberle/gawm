@@ -27,7 +27,7 @@ LINK=-lGL -lX11 -lXcomposite
 
 # Nepovinné parametry překladače
 BRUTAL=-Wall -Wextra -Werror -Wno-unused-variable
-CXXFLAGS=-std=c++11 $(STRICT) -pedantic $(LDB) $(MACROS)
+CXXFLAGS=-std=c++11 $(STRICT) -pedantic $(MACROS)
 
 SOURCES=main
 
