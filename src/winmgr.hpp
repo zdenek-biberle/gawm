@@ -100,8 +100,10 @@ public:
 			throw std::runtime_error("Nepodarilo se vytvorit OpenGL kontext!");
 		}
 		glXMakeCurrent(display, window, ctx);
-		glScaled(1.0 / overlayWindowAttribs.width, -1.0 / overlayWindowAttribs.height, 0.5);
-		glTranslated(-overlayWindowAttribs.width, -overlayWindowAttribs.height, 0.0);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		glTranslated(-1.0, 1.0, 0.0);
+		glScaled( 2.0 / overlayWindowAttribs.width, -2.0 / overlayWindowAttribs.height, 0.5);
 	}
 	
 	void destroyGL(){

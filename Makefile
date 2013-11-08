@@ -55,7 +55,7 @@ strict:
 
 # Spustí testy
 run: $(program)
-	killall $(program) 2>/dev/null; xinit ./$(program) -- /usr/bin/Xephyr $(display) &
+	xinit ./$(program) -- /usr/bin/Xephyr $(display) -screen 800x600 &
 
 test: run
 	sleep 3
