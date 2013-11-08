@@ -61,12 +61,23 @@ test: run
 	sleep 3
 	DISPLAY=$(display) xterm
 
-valgrind:
-	make debug
-	valgrind --tool=memcheck --leak-check=yes --show-reachable=yes ./$(program) $(ARG1)
+valgrind: debug
+	/usr/bin/Xephyr $(display) & \
+	xephyr_p=$$!; \
+	DISPLAY=$(display) valgrind --tool=memcheck --leak-check=yes --show-reachable=yes './$(program)-dbg'; \
+	kill $$xephyr_p;
 
-kdbg:
-	mkdir -p '/tmp/KDbg-$(program)'; cp * '/tmp/KDbg-$(program)'; cd '/tmp/KDbg-$(program)'; make debug; kdbg ./$(program)
+gdb: debug
+	/usr/bin/Xephyr $(display) & \
+	xephyr_p=$$!; \
+	DISPLAY=$(display) gdb './$(program)-dbg'; \
+	kill $$xephyr_p;
+
+kdbg: debug
+	xinit './$(program)-dbg' -- /usr/bin/Xephyr $(display) & \
+	xinit_p=$$!; \
+	bash ./debug-kdbg.sh; \
+	kill $$xinit_p;
 
 #  Debug
 #  *****
