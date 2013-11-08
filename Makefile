@@ -1,12 +1,84 @@
+# -*- coding: utf-8 -*-
+#
+# Makefile pro projekt GAWM
+#
+
+# Jméno přeloženého programu
+program=gawm
+
+# Číslo displeje pro Xephyr
 display=:2
 
-gawm: Makefile main.cpp utils.hpp window.hpp winmgr.hpp
-	# Jsem proste Biba
-	g++ -o gawm -std=c++11 main.cpp -lGL -lX11 -lXcomposite -g3
+# Úroveň množství debugovacích informací
+LDB=-g3 -DDEBUG
 
-run: gawm
-	killall gawm 2>/dev/null; xinit ./gawm -- /usr/bin/Xephyr $(display) &
+# Seznam ostatních souborů.
+OTHER=Makefile
+
+# Překladač C
+CPP=g++
+CXX=$(CPP)
+
+# Link
+LINK=-lGL -lX11 -lXcomposite
+
+# Makra
+# MACROS=-D_XOPEN_SOURCE -D_XOPEN_SOURCE_EXTENDED
+
+# Nepovinné parametry překladače
+BRUTAL=-Wall -Wextra -Werror -Wno-unused-variable
+CXXFLAGS=-std=c++11 $(STRICT) -pedantic $(LDB) $(MACROS)
+
+SOURCES=main
+
+$(program): $(addprefix obj/,$(addsuffix .o,$(SOURCES)))
+	$(CXX) -o $@ $^ $(CXXFLAGS) $(LINK)
+
+obj/%.o: src/%.cpp
+	mkdir -p dep obj # Adresare nejsou v gitu
+	$(CXX) -MMD -MP -MF dep/$*.d -c -o $@ $< $(CXXFLAGS) -DNDEBUG
+
+obj/dbg/%.o: src/%.cpp
+	mkdir -p dep/dbg obj/dbg # Adresare nejsou v gitu
+	$(CXX) -MMD -MP -MF dep/dbg/$*.d -c -o $@ $< $(CXXFLAGS) $(LDB)
+
+-include $(addprefix dep/,$(addsuffix .d,$(SOURCES)))
+
+#######################################################################
+.PHONY: build strict clean pack test run valgrind kdbg debug
+
+# Zkompiluje program (výchozí)
+build: $(program)
+
+strict:
+	make "STRICT=$(BRUTAL)"
+
+# Spustí testy
+run: $(program)
+	killall $(program) 2>/dev/null; xinit ./$(program) -- /usr/bin/Xephyr $(display) &
 
 test: run
-	sleep 1
+	sleep 3
 	DISPLAY=$(display) xterm
+
+valgrind:
+	make debug
+	valgrind --tool=memcheck --leak-check=yes --show-reachable=yes ./$(program) $(ARG1)
+
+kdbg:
+	mkdir -p '/tmp/KDbg-$(program)'; cp * '/tmp/KDbg-$(program)'; cd '/tmp/KDbg-$(program)'; make debug; kdbg ./$(program)
+
+#  Debug
+#  *****
+
+debug: $(addprefix obj/dbg/,$(addsuffix .o,$(SOURCES)))
+	$(CXX) -o '$(program)-dbg' $^ $(CXXFLAGS) $(BRUTAL) $(LDB) $(LINK)
+
+clean:
+	rm -f obj/*.o obj/dbg/*.o dep/*.d dep/dbg/*.d './$(program)' './$(program)-dbg'
+	rm -f pack/$(program) pack/*.*
+
+pack:
+	make -C doc
+	rm -f pack/$(program) pack/*.*
+	bash -c 'cp src/*[^~] pack/; cp doc/$(program).pdf pack/dokumentace.pdf; cd pack; tar -zcvf ../xbiber00.tgz *'
