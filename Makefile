@@ -20,7 +20,7 @@ CPP=g++
 CXX=$(CPP)
 
 # Link
-LINK=-lGLEW -lGL -lX11 -lXcomposite
+LINK=-lGLEW -lGL -lX11 -lXcomposite -lXfixes
 
 # Makra
 # MACROS=-D_XOPEN_SOURCE -D_XOPEN_SOURCE_EXTENDED
