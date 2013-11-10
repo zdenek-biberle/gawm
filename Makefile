@@ -29,7 +29,7 @@ LINK=-lGLEW -lGL -lX11 -lXcomposite -lXfixes
 BRUTAL=-Wall -Wextra -Werror -Wno-unused-variable
 CXXFLAGS=-std=c++11 $(STRICT) -pedantic $(MACROS)
 
-SOURCES=main gawmGl
+SOURCES=main gawmGl window winmgr
 
 $(program): $(addprefix obj/,$(addsuffix .o,$(SOURCES)))
 	$(CXX) -o $@ $^ $(CXXFLAGS) $(LINK)
@@ -62,7 +62,7 @@ runSmall: $(program)
 	xinit ./$(program) -- /usr/bin/Xephyr $(display) -screen 640x480 &
 
 test: run
-	sleep 3
+	runner=$$(bash ./get_pid.sh './$(program)')
 	DISPLAY=$(display) xterm
 
 valgrind: debug

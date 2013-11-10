@@ -3,46 +3,20 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/extensions/Xcomposite.h>
-#include <X11/extensions/Xfixes.h>
 #include <memory>
 #include <stdexcept>
 #include <unistd.h>
 #include <iostream>
-#include <boost/ptr_container/ptr_map.hpp>
 
 #include "utils.hpp"
 #include "winmgr.hpp"
 #include "window.hpp"
-
-void render(GawmWindowManager* wm, boost::ptr_map<long unsigned int, GawmWindow>* knownWindows){
-	
-	// pozadi plochy
-	glClearColor(0.25, 0.25, 0.25, 1.0);
-	glClear(GL_COLOR_BUFFER_BIT);
-	glEnable(GL_TEXTURE_2D);
-	
-	for(auto knownWindow : *knownWindows)
-	{
-		knownWindow.second->render();
-	}
-	
-	GLenum err;
-	while ((err = glGetError()) != GL_NO_ERROR)
-	{
-		std::cout << "GL error: " << err << std::endl;
-	}
-	
-	glXSwapBuffers(wm->display, wm->window);
-	
-}
 
 int main()
 {
 	srand(time(nullptr));
 	
 	GawmWindowManager wm;
-	
-	boost::ptr_map<Window, GawmWindow> knownWindows;
 	
 	// Odchytavani klaves pro Window manager
 	KeyCode Escape = XKeysymToKeycode(wm.display, XStringToKeysym("Escape"));
@@ -52,25 +26,28 @@ int main()
 	while (true)
 	{
 		
-		render(&wm, &knownWindows);
+		wm.render();
 		
 		XEvent event;
-		while(XCheckWindowEvent(wm.display, wm.rootWindow, SubstructureNotifyMask, &event) == True)
+		XNextEvent(wm.display, &event);
+// 		while(XPending(wm.display))
 		{
 			switch (event.type)
 			{
 				case CreateNotify:
 				{
 					XCreateWindowEvent& cwe = event.xcreatewindow;
-					knownWindows.insert(cwe.window, new GawmWindow(&wm, cwe.window, cwe.x, cwe.y, cwe.width, cwe.height));
+					wm.knownWindows.insert(cwe.window, new GawmWindow(wm.display, wm.screen, cwe.window, cwe.x, cwe.y, cwe.width, cwe.height));
 				}
 				break;
 				
 				case DestroyNotify:
 				{
-					
 					XDestroyWindowEvent& dwe = event.xdestroywindow;
-					knownWindows.erase(dwe.window);
+					if ( wm.knowWindow(dwe.window) ) {
+						std::cout << "Erase ..." << std::endl;
+						wm.knownWindows.erase(dwe.window);
+					}
 					std::cout << "Erase done!" << std::endl;
 				}
 				break;
@@ -86,19 +63,25 @@ int main()
 				case ConfigureNotify:
 				{
 					XConfigureEvent& xce = event.xconfigure;
-					knownWindows.at(xce.window).configure(xce.x,xce.y,xce.width,xce.height);
+					if ( wm.knowWindow(xce.window) ) {
+						wm.knownWindows.at(xce.window).configure(xce.x,xce.y,xce.width,xce.height);
+					}
 				}
 				break;
 				
 				case MapNotify:
 				{
-					knownWindows.at(event.xmap.window).setVisible(true);
+					if ( wm.knowWindow(event.xmap.window) ) {
+						wm.knownWindows.at(event.xmap.window).setVisible(true);
+					}
 				}
 				break;
 				
 				case UnmapNotify:
 				{
-					knownWindows.at(event.xunmap.window).setVisible(false);
+					if ( wm.knowWindow(event.xunmap.window) ) {
+						wm.knownWindows.at(event.xunmap.window).setVisible(false);
+					}
 				}
 				break;
 				
