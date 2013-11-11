@@ -12,4 +12,5 @@ Klávesové zkratky
 * Win+LMB | Win+MMB | Win - posun celé plochy
 * Win+1 až Win+0 - výběr části plochy
 * Win+kolečko myši - zoom
+* Win+RMB - zoom na cast obrazovky jako v gimpu
 
