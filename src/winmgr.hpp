@@ -45,6 +45,8 @@ private:
 	void destroyGL();
 	
 	void allowInputPassthrough();
+
+	void initKnownWindows();
 };
 
 #endif

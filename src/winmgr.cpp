@@ -32,6 +32,7 @@ GawmWindowManager::GawmWindowManager()
 	initFbConfig();
 	initWindow();
 	XSelectInput(display, rootWindow, SubstructureNotifyMask);
+	initKnownWindows();
 	initGL();
 	allowInputPassthrough();
 }
@@ -170,4 +171,48 @@ bool GawmWindowManager::knowWindow(Window window)
 	else {
 		return false;
 	}
+}
+
+void GawmWindowManager::initKnownWindows()
+{
+	Window parent;
+	Window *children;
+	Status status;
+	unsigned nNumChildren;
+
+	status = XQueryTree(display, rootWindow, &rootWindow, &parent, &children, &nNumChildren);
+	if (status == 0)
+	{
+		// Nemohu získat strom oken, přerušuji.
+		return;
+	}
+
+	if (nNumChildren == 0)
+	{
+		// Kořeň nemá žádné děcka.
+		return;
+	}
+
+	for (unsigned i = 0; i < nNumChildren; i++)
+	{
+		int x, y;
+		unsigned width, height;
+		unsigned border_width;
+		unsigned depth;
+
+		status = XGetGeometry(display, children[i], &rootWindow, &x, &y, &width, &height, &border_width, &depth);
+		if (status == 0)
+		{
+			// Nemohu získat geometrii okna, pokračuji dalším.
+			continue;
+		}
+
+		// Přidáme potomka Xek do mapy známých oken...
+		knownWindows.insert(children[i], new GawmWindow(display, screen, children[i],
+														x, y, width+2*border_width, height+2*border_width));
+		// ... a zviditeníme ho.
+		knownWindows.at(children[i]).setVisible(true);
+	}
+
+	XFree(children);
 }
