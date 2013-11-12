@@ -114,13 +114,23 @@ void GawmWindow::render(){
 
 	if(isVisible())
 	{
+		
+		// okraje oken
+		GLubyte color[] = {200,200,200};
+		glBegin(GL_QUADS);
+		glColor3ubv(color);
+		glVertex2i(x-2, y-10);
+		glVertex2i(x-2, y+height+2);
+		glVertex2i(x+width+2, y+height+2);
+		glVertex2i(x+width+2, y-10);
+		glEnd();
+		
+		
 		glBindTexture(GL_TEXTURE_2D, glTexture);
-
 		glXBindTexImageEXT(display, glxPixmap, GLX_FRONT_LEFT_EXT, nullptr);
-
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
+		
 		glBegin(GL_QUADS);
 		//glColor3ubv(color);
 		glTexCoord2f(0.0f, 0.0f);
@@ -133,7 +143,7 @@ void GawmWindow::render(){
 		glVertex2i(x + width, y);
 		glEnd();
 		//glXReleaseTexImageEXT (display, glxPixmap, GLX_FRONT_LEFT_EXT);
-
+		
 	}
 }
 

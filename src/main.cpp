@@ -21,7 +21,8 @@ int main()
 	// Odchytavani klaves pro Window manager
 	KeyCode Escape = XKeysymToKeycode(wm.display, XStringToKeysym("Escape"));
 	XGrabKey(wm.display, Escape, Mod4Mask, wm.window, True, GrabModeSync, GrabModeSync); // Mod4Mask / AnyModifier
-	XSelectInput(wm.display, wm.window, KeyPressMask);
+	XGrabButton(wm.display, Button1, AnyModifier, wm.window, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
+	XSelectInput(wm.display, wm.window, ButtonPressMask + KeyPressMask);
 	
 	while (true)
 	{
@@ -38,6 +39,8 @@ int main()
 				{
 					XCreateWindowEvent& cwe = event.xcreatewindow;
 					wm.knownWindows.insert(cwe.window, new GawmWindow(wm.display, wm.screen, cwe.window, cwe.x, cwe.y, cwe.width, cwe.height));
+					
+					XLowerWindow(wm.display, wm.overlayWindow); // experiment
 				}
 				break;
 				
@@ -93,6 +96,18 @@ int main()
 					}
 				}
 				break;
+				
+				case ButtonPress:
+				{
+					if(event.xbutton.button == 1){ // kliknuto levym tlacitkem mysi
+						std::cout << "Vyzdvihuji okno " << event.xbutton.subwindow << std::endl;
+						XRaiseWindow(wm.display, event.xbutton.window); // vyzdvihnout okno na ktere se kliklo
+						//XLowerWindow(wm.display, wm.overlayWindow);
+					}
+				}
+				break;
+				
+				
 				
 				default:
 					std::cout << "Dosel mi typ " << event.type << "; nevim, co s tim..." << std::endl;
