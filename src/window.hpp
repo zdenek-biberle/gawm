@@ -8,10 +8,12 @@
 
 struct GawmWindow
 {
+public:
+	Display * const display;
+	const int screen;
+	const Window window;
+
 private:
-	Display *display;
-	int screen;
-	Window window;
 	int x;
 	int y;
 	int width;
@@ -33,11 +35,15 @@ public:
 	
 	void reloadPixmap();
 	
+	bool containsPoint(int pX, int pY);
+	
 	void render();
 	
 	bool isVisible();
 	
 	void setVisible(bool visible);
+	
+	Window getWindow();
 };
 
 const GLubyte* selectRandomColor();

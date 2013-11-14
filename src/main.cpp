@@ -41,8 +41,8 @@ int main()
 			if (event.type == CreateNotify)
 			{
 				XCreateWindowEvent& cwe = event.xcreatewindow;
-				wm.knownWindows.insert(cwe.window, new GawmWindow(wm.display, wm.screen, cwe.window, cwe.x, cwe.y, cwe.width, cwe.height));
-
+				wm.insertWindow(cwe.window, cwe.x, cwe.y, cwe.width, cwe.height);
+				
 				XLowerWindow(wm.display, wm.overlayWindow); // experiment
 			}
 			else if (event.type == DestroyNotify)
@@ -50,7 +50,7 @@ int main()
 				XDestroyWindowEvent& dwe = event.xdestroywindow;
 				if ( wm.knowWindow(dwe.window) ) {
 					std::cout << "Erase ..." << std::endl;
-					wm.knownWindows.erase(dwe.window);
+					wm.eraseWindow(dwe.window);
 				}
 				std::cout << "Erase done!" << std::endl;
 			}
@@ -64,21 +64,21 @@ int main()
 				XConfigureEvent& xce = event.xconfigure;
 				if (wm.knowWindow(xce.window))
 				{
-					wm.knownWindows.at(xce.window).configure(xce.x,xce.y,xce.width,xce.height);
+					wm.configureWindow(xce.window, xce.x, xce.y, xce.width, xce.height);
 				}
 			}
 			else if (event.type == MapNotify)
 			{
 				if (wm.knowWindow(event.xmap.window))
 				{
-					wm.knownWindows.at(event.xmap.window).setVisible(true);
+					wm.setVisibilityOfWindow(event.xmap.window, true);
 				}
 			}
 			else if (event.type == UnmapNotify)
 			{
 				if ( wm.knowWindow(event.xunmap.window) )
 				{
-					wm.knownWindows.at(event.xunmap.window).setVisible(false);
+					wm.setVisibilityOfWindow(event.xunmap.window, false);
 				}
 			}
 			else if (event.type == KeyPress || event.type == KeyRelease)
@@ -94,6 +94,11 @@ int main()
 				if (event.xbutton.button == 1)
 				{ // kliknuto levym tlacitkem mysi
 					std::cout << "nope.avi" << std::endl;
+					
+					GawmWindow *w = wm.getHighestWindowAtLocation(20,20);
+					std::cout << "Na 20x20 je okno " << (w==NULL?-1:w->window) << std::endl;
+					
+					
 					//std::cout << "Vyzdvihuji okno " << event.xbutton.subwindow << std::endl;
 					//XRaiseWindow(wm.display, event.xbutton.window); // vyzdvihnout okno na ktere se kliklo
 					//XLowerWindow(wm.display, wm.overlayWindow);

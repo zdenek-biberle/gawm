@@ -173,6 +173,41 @@ bool GawmWindowManager::knowWindow(Window window)
 	}
 }
 
+GawmWindow* GawmWindowManager::getHighestWindowAtLocation(int lX, int lY)
+{
+	/*
+	for (auto knownWindow : knownWindows)
+	{
+		if(knownWindow.second->containsPoint(lX, lY))
+		{
+			
+		}
+	}
+	*/
+	
+	return NULL;
+}
+
+void GawmWindowManager::insertWindow(Window window, int x, int y, int width, int height){
+	GawmWindow *w = new GawmWindow(display, screen, window, x, y, width, height);
+	knownWindows.insert(window, w);
+	sortedWindows.push_back(w);
+}
+
+void GawmWindowManager::eraseWindow(Window window){
+	GawmWindow *w = &knownWindows.at(window);
+	knownWindows.erase(window);
+	sortedWindows.remove(w);
+}
+
+void GawmWindowManager::configureWindow(Window window, int newX, int newY, int newWidth, int newHeight){
+	knownWindows.at(window).configure(newX, newY, newWidth, newHeight);
+}
+
+void GawmWindowManager::setVisibilityOfWindow(Window window, bool visible){
+	knownWindows.at(window).setVisible(visible);
+}
+
 void GawmWindowManager::initKnownWindows()
 {
 	Window parent;

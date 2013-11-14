@@ -28,12 +28,13 @@ GawmWindow::GawmWindow(Display *display, int screen, Window window, int x, int y
 			  << " velikosti " << width << "x" << height << std::endl;
 
 	XCompositeRedirectWindow(display, window, CompositeRedirectManual);
-	XDamageCreate(display, window, XDamageReportNonEmpty);
+	damage = XDamageCreate(display, window, XDamageReportNonEmpty);
 }
 
 GawmWindow::~GawmWindow()
 {
 	std::cout << "DestroyNotify: Zniceno okno " << window << std::endl;
+	XDamageDestroy(display, damage);
 }
 
 void GawmWindow::configure(int newX, int newY, int newWidth, int newHeight){
@@ -159,6 +160,11 @@ void GawmWindow::setVisible(bool visible)
 {
 	this->visible = visible;
 	reloadPixmap();
+}
+
+bool GawmWindow::containsPoint(int pX, int pY)
+{
+	return (x<=pX && pX<=x+width) && (y<=pY && pY<=y+height);
 }
 
 /*       _\|/_

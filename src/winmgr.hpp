@@ -1,6 +1,7 @@
 #ifndef WINMGR_HPP
 #define WINMGR_HPP
 
+#include <list>
 #include <boost/ptr_container/ptr_map.hpp>
 #include <X11/extensions/shape.h>
 #include <X11/extensions/Xdamage.h>
@@ -22,16 +23,29 @@ public:
 	XSetWindowAttributes windowAttribs;
 	XWindowAttributes overlayWindowAttribs;
 	GLXContext ctx;
-
+	
 	typedef boost::ptr_map<Window, GawmWindow> TKnownWindowsMap;
 	TKnownWindowsMap knownWindows;
 	
+	typedef std::list<GawmWindow*> TSortedWindows;
+	TSortedWindows sortedWindows;
+	
 	GawmWindowManager();
 	~GawmWindowManager();
-
+	
 	void render();
-
+	
 	bool knowWindow(Window window);
+	
+	GawmWindow *getHighestWindowAtLocation(int lX, int lY);
+	
+	void insertWindow(Window window, int x, int y, int width, int height);
+	
+	void eraseWindow(Window window);
+	
+	void configureWindow(Window window, int newX, int newY, int newWidth, int newHeight);
+	
+	void setVisibilityOfWindow(Window window, bool visible);
 	
 private:
 	
@@ -46,8 +60,9 @@ private:
 	void destroyGL();
 	
 	void allowInputPassthrough();
-
+	
 	void initKnownWindows();
+	
 };
 
 #endif
