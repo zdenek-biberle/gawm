@@ -195,12 +195,9 @@ void GawmWindowManager::initKnownWindows()
 
 	for (unsigned i = 0; i < nNumChildren; i++)
 	{
-		int x, y;
-		unsigned width, height;
-		unsigned border_width;
-		unsigned depth;
+		XWindowAttributes w_attr;
 
-		status = XGetGeometry(display, children[i], &rootWindow, &x, &y, &width, &height, &border_width, &depth);
+		status = XGetWindowAttributes(display, children[i], &w_attr);
 		if (status == 0)
 		{
 			// Nemohu získat geometrii okna, pokračuji dalším.
@@ -209,9 +206,13 @@ void GawmWindowManager::initKnownWindows()
 
 		// Přidáme potomka Xek do mapy známých oken...
 		knownWindows.insert(children[i], new GawmWindow(display, screen, children[i],
-														x, y, width+2*border_width, height+2*border_width));
-		// ... a zviditeníme ho.
-		knownWindows.at(children[i]).setVisible(true);
+														w_attr.x, w_attr.y,
+														w_attr.width+2*w_attr.border_width, w_attr.height+2*w_attr.border_width));
+		// ... a zviditeníme ho, pokud je IsViewable
+		if (w_attr.map_state == IsViewable)
+		{
+			knownWindows.at(children[i]).setVisible(true);
+		}
 	}
 
 	XFree(children);
