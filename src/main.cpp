@@ -35,9 +35,10 @@ int main()
 		wm.render();
 		
 		XEvent event;
-		XNextEvent(wm.display, &event);
-// 		while(XPending(wm.display))
+		XPeekEvent(wm.display, &event);
+		while(XPending(wm.display))
 		{
+			XNextEvent(wm.display, &event);
 			if (event.type == CreateNotify)
 			{
 				XCreateWindowEvent& cwe = event.xcreatewindow;

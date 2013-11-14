@@ -158,7 +158,7 @@ void GawmWindowManager::allowInputPassthrough()
 {
 	XserverRegion region = XFixesCreateRegion(display, NULL, 0);
 	XFixesSetWindowShapeRegion(display, window, ShapeBounding, 0, 0, 0);
-//	XFixesSetWindowShapeRegion(display, window, ShapeInput, 0, 0, region); // FIXME: Pokud je toto odkomentováno, přestanou se odchytávat klávesy.
+	XFixesSetWindowShapeRegion(display, window, ShapeInput, 0, 0, region); // FIXME: Pokud je toto odkomentováno, přestanou se odchytávat klávesy.
 	XFixesDestroyRegion(display, region);
 }
 
