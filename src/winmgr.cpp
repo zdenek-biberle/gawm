@@ -175,12 +175,13 @@ bool GawmWindowManager::isKnownWindow(Window window)
 
 void GawmWindowManager::initKnownWindows()
 {
+	Window root;
 	Window parent;
 	Window *children;
 	Status status;
 	unsigned nNumChildren;
 
-	status = XQueryTree(display, rootWindow, &rootWindow, &parent, &children, &nNumChildren);
+	status = XQueryTree(display, rootWindow, &root, &parent, &children, &nNumChildren);
 	if (status == 0)
 	{
 		// Nemohu získat strom oken, přerušuji.
