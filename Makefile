@@ -45,7 +45,7 @@ obj/dbg/%.o: src/%.cpp
 -include $(addprefix dep/,$(addsuffix .d,$(SOURCES)))
 
 #######################################################################
-.PHONY: build strict clean pack test run valgrind kdbg debug
+.PHONY: build strict clean pack test_ test testSmall run valgrind kdbg debug
 
 # Zkompiluje program (výchozí)
 build: $(program)
@@ -61,9 +61,16 @@ run: $(program)
 runSmall: $(program)
 	xinit ./$(program) -- /usr/bin/Xephyr $(display) -screen 640x480 &
 
-test: run
+# Nespouštět, pokud neběží gawm!
+test_:
 	runner=$$(bash ./get_pid.sh './$(program)')
-	DISPLAY=$(display) xterm
+	DISPLAY=$(display) xterm -geometry 68x29+0+0 &
+	DISPLAY=$(display) xterm -geometry 100x17+5+5 &
+
+test: run test_
+
+# Pro Bibu, kterej ma malej kompl
+testSmall: runSmall test_
 
 valgrind: debug
 	/usr/bin/Xephyr $(display) & \
