@@ -91,15 +91,12 @@ int main()
 			{
 				if (event.xbutton.button == 1)
 				{ // kliknuto levym tlacitkem mysi
-					std::cout << "nope.avi" << std::endl;
+					std::cout << "Leve mysitko" << std::endl;
 					
 					GawmWindow *w = wm.getHighestWindowAtLocation(20,20);
 					std::cout << "Na 20x20 je okno " << (w==NULL?-1:w->window) << std::endl;
 					
-					
-					//std::cout << "Vyzdvihuji okno " << event.xbutton.subwindow << std::endl;
-					//XRaiseWindow(wm.display, event.xbutton.window); // vyzdvihnout okno na ktere se kliklo
-					//XLowerWindow(wm.display, wm.overlayWindow);
+					wm.raiseWindow(w->window);
 				}
 			}
 			else if (event.type == ReparentNotify)

@@ -47,6 +47,8 @@ public:
 	
 	void setVisibilityOfWindow(Window window, bool visible);
 	
+	void raiseWindow(Window window);
+	
 private:
 	
 	void initFbConfig();
