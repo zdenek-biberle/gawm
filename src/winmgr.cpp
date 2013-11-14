@@ -24,17 +24,22 @@ GawmWindowManager::GawmWindowManager()
 	}
 
 	XSynchronize(display, True); // Synchronizace s xserverem pro debugování - vygoogleno
+	XSetErrorHandler(xerrorhandler);
 
 	screen = DefaultScreen(display);
 	rootWindow = DefaultRootWindow(display);
 	overlayWindow = XCompositeGetOverlayWindow(display, rootWindow);
-	XSetErrorHandler(xerrorhandler);
+	
+	XCompositeRedirectSubwindows(display, rootWindow, CompositeRedirectManual);
 	initFbConfig();
 	initWindow();
 	XSelectInput(display, rootWindow, SubstructureNotifyMask);
 	initKnownWindows();
 	initGL();
 	allowInputPassthrough();
+	
+	std::cout << "GawmWindowManager: Screen: " << screen << ", rootWindow: " << rootWindow << ", overlayWindow: " << overlayWindow 
+			<< ", GL window: " << window << std::endl;
 }
 
 GawmWindowManager::~GawmWindowManager()
@@ -158,11 +163,11 @@ void GawmWindowManager::allowInputPassthrough()
 {
 	XserverRegion region = XFixesCreateRegion(display, NULL, 0);
 	XFixesSetWindowShapeRegion(display, window, ShapeBounding, 0, 0, 0);
-//	XFixesSetWindowShapeRegion(display, window, ShapeInput, 0, 0, region); // FIXME: Pokud je toto odkomentováno, přestanou se odchytávat klávesy.
+	XFixesSetWindowShapeRegion(display, window, ShapeInput, 0, 0, region); // FIXME: Pokud je toto odkomentováno, přestanou se odchytávat klávesy.
 	XFixesDestroyRegion(display, region);
 }
 
-bool GawmWindowManager::knowWindow(Window window)
+bool GawmWindowManager::isKnownWindow(Window window)
 {
 	TKnownWindowsMap::iterator it = knownWindows.find(window);
 	if ( it != knownWindows.end() ) {
@@ -210,12 +215,13 @@ void GawmWindowManager::setVisibilityOfWindow(Window window, bool visible){
 
 void GawmWindowManager::initKnownWindows()
 {
+	Window root;
 	Window parent;
 	Window *children;
 	Status status;
 	unsigned nNumChildren;
 
-	status = XQueryTree(display, rootWindow, &rootWindow, &parent, &children, &nNumChildren);
+	status = XQueryTree(display, rootWindow, &root, &parent, &children, &nNumChildren);
 	if (status == 0)
 	{
 		// Nemohu získat strom oken, přerušuji.
@@ -230,12 +236,18 @@ void GawmWindowManager::initKnownWindows()
 
 	for (unsigned i = 0; i < nNumChildren; i++)
 	{
+		if (children[i] == overlayWindow)
+		{
+			std::cout << "Jedno z deti roota je overlay, to je asi spatne" << std::endl;
+		}
+		
 		XWindowAttributes w_attr;
 
 		status = XGetWindowAttributes(display, children[i], &w_attr);
 		if (status == 0)
 		{
 			// Nemohu získat geometrii okna, pokračuji dalším.
+			std::cout << "Okno je " << children[i] << " a nemá geometrii" << std::endl;
 			continue;
 		}
 

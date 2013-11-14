@@ -35,12 +35,14 @@ int main()
 		wm.render();
 		
 		XEvent event;
-		XNextEvent(wm.display, &event);
-// 		while(XPending(wm.display))
+		XPeekEvent(wm.display, &event);
+		while(XPending(wm.display))
 		{
+			XNextEvent(wm.display, &event);
 			if (event.type == CreateNotify)
 			{
 				XCreateWindowEvent& cwe = event.xcreatewindow;
+				
 				wm.insertWindow(cwe.window, cwe.x, cwe.y, cwe.width, cwe.height);
 				
 				XLowerWindow(wm.display, wm.overlayWindow); // experiment
@@ -48,10 +50,8 @@ int main()
 			else if (event.type == DestroyNotify)
 			{
 				XDestroyWindowEvent& dwe = event.xdestroywindow;
-				if ( wm.knowWindow(dwe.window) ) {
-					std::cout << "Erase ..." << std::endl;
-					wm.eraseWindow(dwe.window);
-				}
+				std::cout << "Erase ..." << std::endl;
+				wm.knownWindows.erase(dwe.window);
 				std::cout << "Erase done!" << std::endl;
 			}
 			else if (event.type == ClientMessage)
@@ -62,24 +62,22 @@ int main()
 			else if (event.type == ConfigureNotify)
 			{
 				XConfigureEvent& xce = event.xconfigure;
-				if (wm.knowWindow(xce.window))
+				if (wm.knownWindows.find(xce.window) == wm.knownWindows.end())
+				{
+					std::cout << "OH SHIT: o okne " << xce.window << " nic nevime, WTF?" << std::endl;
+				}
+				else
 				{
 					wm.configureWindow(xce.window, xce.x, xce.y, xce.width, xce.height);
 				}
 			}
 			else if (event.type == MapNotify)
 			{
-				if (wm.knowWindow(event.xmap.window))
-				{
-					wm.setVisibilityOfWindow(event.xmap.window, true);
-				}
+				wm.setVisibilityOfWindow(event.xmap.window, true);
 			}
 			else if (event.type == UnmapNotify)
 			{
-				if ( wm.knowWindow(event.xunmap.window) )
-				{
-					wm.setVisibilityOfWindow(event.xunmap.window, false);
-				}
+				wm.setVisibilityOfWindow(event.xunmap.window, false);
 			}
 			else if (event.type == KeyPress || event.type == KeyRelease)
 			{
@@ -104,11 +102,16 @@ int main()
 					//XLowerWindow(wm.display, wm.overlayWindow);
 				}
 			}
+			else if (event.type == ReparentNotify)
+			{
+				XReparentEvent& xre = event.xreparent;
+				std::cout << "Reparent okna " << xre.window << " k rodici " << xre.parent << " na " << xre.x << ", " << xre.y << std::endl;
+			}
 			else if (event.type == damage_event + XDamageNotify)
 			{
 				auto& dne = *reinterpret_cast<XDamageNotifyEvent*>(&event);
-				std::cout << "XDamageNotifyEvent okna " << dne.drawable << std::endl;
 				XDamageSubtract(wm.display, dne.damage, None, None);
+				wm.knownWindows.at(dne.drawable).doDamage();
 			}
 			else
 			{

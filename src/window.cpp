@@ -26,8 +26,7 @@ GawmWindow::GawmWindow(Display *display, int screen, Window window, int x, int y
 {
 	std::cout << "CreateNotify: Vytvoreno okno " << window << " na " << x << ", " << y
 			  << " velikosti " << width << "x" << height << std::endl;
-
-	XCompositeRedirectWindow(display, window, CompositeRedirectManual);
+	
 	damage = XDamageCreate(display, window, XDamageReportNonEmpty);
 }
 
@@ -99,25 +98,39 @@ void GawmWindow::reloadPixmap(){
 				GLX_TEXTURE_FORMAT_EXT, GLX_TEXTURE_FORMAT_RGBA_EXT,
 				None };
 
-		pixmap = XCompositeNameWindowPixmap(display, window);
-		std::cout << "pixmap: " << pixmap << std::endl;
-		glxPixmap = glXCreatePixmap(display, fbConfigs[i], pixmap, pixmapAttribs);
-		std::cout << "glxPixmap: " << glxPixmap << std::endl;
+		XWindowAttributes wAttr;
+		int status = XGetWindowAttributes(display, window, &wAttr);
+		if (status == 0)
+		{
+			throw std::runtime_error("Nelze získat atributy okna");
+		}
+		
+		if (wAttr.map_state == IsViewable)
+		{
+			pixmap = XCompositeNameWindowPixmap(display, window);
+			std::cout << "pixmap: " << pixmap << std::endl;
+			glxPixmap = glXCreatePixmap(display, fbConfigs[i], pixmap, pixmapAttribs);
+			std::cout << "glxPixmap: " << glxPixmap << std::endl;
 
-		glGenTextures (1, &glTexture);
+			glGenTextures (1, &glTexture);
 
-		XSync(display, False);
-		hasPixmap = true;
-		std::cout << "reload pixmapy uspesny" << std::endl;
+			XSync(display, False);
+			hasPixmap = true;
+			std::cout << "reload pixmapy uspesny" << std::endl;
+		}
+		else
+		{
+			std::cout << "reload pixmapy neprobehl, okno neni viewable, tohle by asi nemelo nastat" << std::endl;
+		}
 	}
 }
 
 void GawmWindow::render(){
-	reloadPixmap();
+	
 
 	if(isVisible())
 	{
-		
+		reloadPixmap();
 		// okraje oken
 		glBindTexture(GL_TEXTURE_2D, 0);
 		GLubyte color[] = {200,200,200};
@@ -147,7 +160,6 @@ void GawmWindow::render(){
 		glVertex2i(x + width, y);
 		glEnd();
 		glXReleaseTexImageEXT (display, glxPixmap, GLX_FRONT_LEFT_EXT);
-		
 	}
 }
 
@@ -159,7 +171,11 @@ bool GawmWindow::isVisible()
 void GawmWindow::setVisible(bool visible)
 {
 	this->visible = visible;
-	reloadPixmap();
+}
+
+void GawmWindow::doDamage()
+{
+	hasPixmap = false;
 }
 
 bool GawmWindow::containsPoint(int pX, int pY)

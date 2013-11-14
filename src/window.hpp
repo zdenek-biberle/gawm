@@ -44,6 +44,9 @@ public:
 	void setVisible(bool visible);
 	
 	Window getWindow();
+	
+	void doDamage();
+	
 };
 
 const GLubyte* selectRandomColor();

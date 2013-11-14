@@ -35,7 +35,7 @@ public:
 	
 	void render();
 	
-	bool knowWindow(Window window);
+	bool isKnownWindow(Window window);
 	
 	GawmWindow *getHighestWindowAtLocation(int lX, int lY);
 	
