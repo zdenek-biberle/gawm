@@ -103,7 +103,6 @@ int main()
 			else if (event.type == damage_event + XDamageNotify)
 			{
 				auto& dne = *reinterpret_cast<XDamageNotifyEvent*>(&event);
-				std::cout << "XDamageNotifyEvent okna " << dne.drawable << std::endl;
 				XDamageSubtract(wm.display, dne.damage, None, None);
 			}
 			else

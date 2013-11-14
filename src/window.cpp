@@ -145,7 +145,7 @@ void GawmWindow::render(){
 		glTexCoord2f(1.0f, 0.0f);
 		glVertex2i(x + width, y);
 		glEnd();
-		glXReleaseTexImageEXT (display, glxPixmap, GLX_FRONT_LEFT_EXT);
+		//glXReleaseTexImageEXT (display, glxPixmap, GLX_FRONT_LEFT_EXT);
 		
 	}
 }
