@@ -162,7 +162,7 @@ void GawmWindowManager::allowInputPassthrough()
 	XFixesDestroyRegion(display, region);
 }
 
-bool GawmWindowManager::knowWindow(Window window)
+bool GawmWindowManager::isKnownWindow(Window window)
 {
 	TKnownWindowsMap::iterator it = knownWindows.find(window);
 	if ( it != knownWindows.end() ) {
@@ -201,6 +201,7 @@ void GawmWindowManager::initKnownWindows()
 		if (status == 0)
 		{
 			// Nemohu získat geometrii okna, pokračuji dalším.
+			std::cout << "Okno je " << children[i] << " a nemá geometrii" << std::endl;
 			continue;
 		}
 

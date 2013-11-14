@@ -98,6 +98,15 @@ void GawmWindow::reloadPixmap(){
 				GLX_TEXTURE_FORMAT_EXT, GLX_TEXTURE_FORMAT_RGBA_EXT,
 				None };
 
+		Window root;
+		Window parent;
+		Window* children;
+		unsigned int childrenCount;
+		int status = XQueryTree(display, window, &root, &parent, &children, &childrenCount);
+		if (status == 0)
+			std::cout << "IT'S SHIT" << std::endl;
+		else
+			std::cout << "window: " << window << ", root: " << root << ", parent: " << parent << std::endl;
 		pixmap = XCompositeNameWindowPixmap(display, window);
 		std::cout << "pixmap: " << pixmap << std::endl;
 		glxPixmap = glXCreatePixmap(display, fbConfigs[i], pixmap, pixmapAttribs);

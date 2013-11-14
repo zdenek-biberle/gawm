@@ -31,7 +31,7 @@ public:
 
 	void render();
 
-	bool knowWindow(Window window);
+	bool isKnownWindow(Window window);
 	
 private:
 	

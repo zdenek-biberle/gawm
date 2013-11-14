@@ -43,16 +43,13 @@ int main()
 			{
 				XCreateWindowEvent& cwe = event.xcreatewindow;
 				wm.knownWindows.insert(cwe.window, new GawmWindow(wm.display, wm.screen, cwe.window, cwe.x, cwe.y, cwe.width, cwe.height));
-
 				XLowerWindow(wm.display, wm.overlayWindow); // experiment
 			}
 			else if (event.type == DestroyNotify)
 			{
 				XDestroyWindowEvent& dwe = event.xdestroywindow;
-				if ( wm.knowWindow(dwe.window) ) {
-					std::cout << "Erase ..." << std::endl;
-					wm.knownWindows.erase(dwe.window);
-				}
+				std::cout << "Erase ..." << std::endl;
+				wm.knownWindows.erase(dwe.window);
 				std::cout << "Erase done!" << std::endl;
 			}
 			else if (event.type == ClientMessage)
@@ -63,24 +60,22 @@ int main()
 			else if (event.type == ConfigureNotify)
 			{
 				XConfigureEvent& xce = event.xconfigure;
-				if (wm.knowWindow(xce.window))
+				if (wm.knownWindows.find(xce.window) == wm.knownWindows.end())
+				{
+					std::cout << "OH SHIT: o okne " << xce.window << " nic nevime, WTF?" << std::endl;
+				}
+				else
 				{
 					wm.knownWindows.at(xce.window).configure(xce.x,xce.y,xce.width,xce.height);
 				}
 			}
 			else if (event.type == MapNotify)
 			{
-				if (wm.knowWindow(event.xmap.window))
-				{
-					wm.knownWindows.at(event.xmap.window).setVisible(true);
-				}
+				wm.knownWindows.at(event.xmap.window).setVisible(true);
 			}
 			else if (event.type == UnmapNotify)
 			{
-				if ( wm.knowWindow(event.xunmap.window) )
-				{
-					wm.knownWindows.at(event.xunmap.window).setVisible(false);
-				}
+				wm.knownWindows.at(event.xunmap.window).setVisible(false);
 			}
 			else if (event.type == KeyPress || event.type == KeyRelease)
 			{
