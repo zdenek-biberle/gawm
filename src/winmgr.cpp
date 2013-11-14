@@ -24,17 +24,22 @@ GawmWindowManager::GawmWindowManager()
 	}
 
 	XSynchronize(display, True); // Synchronizace s xserverem pro debugování - vygoogleno
+	XSetErrorHandler(xerrorhandler);
 
 	screen = DefaultScreen(display);
 	rootWindow = DefaultRootWindow(display);
 	overlayWindow = XCompositeGetOverlayWindow(display, rootWindow);
-	XSetErrorHandler(xerrorhandler);
+	
+	XCompositeRedirectSubwindows(display, rootWindow, CompositeRedirectManual);
 	initFbConfig();
 	initWindow();
 	XSelectInput(display, rootWindow, SubstructureNotifyMask);
 	initKnownWindows();
 	initGL();
 	allowInputPassthrough();
+	
+	std::cout << "GawmWindowManager: Screen: " << screen << ", rootWindow: " << rootWindow << ", overlayWindow: " << overlayWindow 
+			<< ", GL window: " << window << std::endl;
 }
 
 GawmWindowManager::~GawmWindowManager()
@@ -196,6 +201,11 @@ void GawmWindowManager::initKnownWindows()
 
 	for (unsigned i = 0; i < nNumChildren; i++)
 	{
+		if (children[i] == overlayWindow)
+		{
+			std::cout << "Jedno z deti roota je overlay, to je asi spatne" << std::endl;
+		}
+		
 		XWindowAttributes w_attr;
 
 		status = XGetWindowAttributes(display, children[i], &w_attr);

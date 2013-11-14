@@ -95,10 +95,16 @@ int main()
 					//XLowerWindow(wm.display, wm.overlayWindow);
 				}
 			}
+			else if (event.type == ReparentNotify)
+			{
+				XReparentEvent& xre = event.xreparent;
+				std::cout << "Reparent okna " << xre.window << " k rodici " << xre.parent << " na " << xre.x << ", " << xre.y << std::endl;
+			}
 			else if (event.type == damage_event + XDamageNotify)
 			{
 				auto& dne = *reinterpret_cast<XDamageNotifyEvent*>(&event);
 				XDamageSubtract(wm.display, dne.damage, None, None);
+				wm.knownWindows.at(dne.drawable).doDamage();
 			}
 			else
 			{

@@ -38,6 +38,8 @@ public:
 	bool isVisible();
 	
 	void setVisible(bool visible);
+	
+	void doDamage();
 };
 
 const GLubyte* selectRandomColor();
