@@ -23,6 +23,7 @@ private:
 	bool hasPixmap;
 	bool visible;
 	bool invertedY;
+	Damage damage;
 
 public:
 	GawmWindow(Display *display, int screen, Window window, int x, int y, int width, int height);

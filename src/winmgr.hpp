@@ -3,6 +3,7 @@
 
 #include <boost/ptr_container/ptr_map.hpp>
 #include <X11/extensions/shape.h>
+#include <X11/extensions/Xdamage.h>
 #include "gawmGl.hpp"
 #include "window.hpp"
 
