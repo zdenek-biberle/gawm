@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <iostream>
 #include <X11/extensions/Xcomposite.h>
+#include <X11/extensions/Xdamage.h>
 
 #include "window.hpp"
 #include "gawmGl.hpp"
@@ -27,6 +28,7 @@ GawmWindow::GawmWindow(Display *display, int screen, Window window, int x, int y
 			  << " velikosti " << width << "x" << height << std::endl;
 
 	XCompositeRedirectWindow(display, window, CompositeRedirectManual);
+	XDamageCreate(display, window, XDamageReportNonEmpty);
 }
 
 GawmWindow::~GawmWindow()
@@ -116,6 +118,7 @@ void GawmWindow::render(){
 	{
 		
 		// okraje oken
+		glBindTexture(GL_TEXTURE_2D, 0);
 		GLubyte color[] = {200,200,200};
 		glBegin(GL_QUADS);
 		glColor3ubv(color);
@@ -142,7 +145,7 @@ void GawmWindow::render(){
 		glTexCoord2f(1.0f, 0.0f);
 		glVertex2i(x + width, y);
 		glEnd();
-		//glXReleaseTexImageEXT (display, glxPixmap, GLX_FRONT_LEFT_EXT);
+		glXReleaseTexImageEXT (display, glxPixmap, GLX_FRONT_LEFT_EXT);
 		
 	}
 }

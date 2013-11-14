@@ -11,7 +11,7 @@ int xerrorhandler(Display *dsp, XErrorEvent *error)
 	char errorstring[128];
 	XGetErrorText(dsp, error->error_code, errorstring, 128);
  
-	std::cerr << "ack!fatal: X error--" << errorstring << std::endl;
+	std::cerr << "Xka umrely: " << errorstring << std::endl;
 	exit(-1);
 }
 
