@@ -45,7 +45,7 @@ int main()
 				
 				wm.insertWindow(cwe.window, cwe.x, cwe.y, cwe.width, cwe.height);
 				
-				XLowerWindow(wm.display, wm.overlayWindow); // experiment
+				//XLowerWindow(wm.display, wm.overlayWindow); // experiment
 			}
 			else if (event.type == DestroyNotify)
 			{
@@ -91,12 +91,18 @@ int main()
 			{
 				if (event.xbutton.button == 1)
 				{ // kliknuto levym tlacitkem mysi
-					std::cout << "Leve mysitko" << std::endl;
+					std::cout << "Stisknuto leve mysitko";
 					
-					GawmWindow *w = wm.getHighestWindowAtLocation(20,20);
-					std::cout << "Na 20x20 je okno " << (w==NULL?-1:w->window) << std::endl;
+					GawmWindow *w = wm.getHighestWindowAtLocation(event.xbutton.x_root, event.xbutton.y_root);
 					
-					wm.raiseWindow(w->window);
+					std::cout << " na " << event.xbutton.x_root << "x" << event.xbutton.y_root << ", kde je ";
+					if(w == NULL){
+						std::cout << "plocha" << std::endl;
+					}else{
+						std::cout << "okno " << w->window << std::endl;
+					}
+					
+					if(w != NULL) wm.raiseWindow(w->window);
 				}
 			}
 			else if (event.type == ReparentNotify)

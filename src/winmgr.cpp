@@ -12,7 +12,8 @@ int xerrorhandler(Display *dsp, XErrorEvent *error)
 	XGetErrorText(dsp, error->error_code, errorstring, 128);
  
 	std::cerr << "Xka umrely: " << errorstring << std::endl;
-	exit(-1);
+	throw std::runtime_error("Xka umrely");
+	//exit(-1);
 }
 
 GawmWindowManager::GawmWindowManager()
@@ -163,8 +164,13 @@ void GawmWindowManager::allowInputPassthrough()
 {
 	XserverRegion region = XFixesCreateRegion(display, NULL, 0);
 	XFixesSetWindowShapeRegion(display, window, ShapeBounding, 0, 0, 0);
-	XFixesSetWindowShapeRegion(display, window, ShapeInput, 0, 0, region); // FIXME: Pokud je toto odkomentováno, přestanou se odchytávat klávesy.
+	//XFixesSetWindowShapeRegion(display, window, ShapeInput, 0, 0, region); // FIXME: Pokud je toto odkomentováno, přestanou se odchytávat klávesy.
 	XFixesDestroyRegion(display, region);
+	
+	// experiment2
+	XGrabPointer(display, overlayWindow, True /*owner_events - proverit*/, 0/*event_mask*/, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
+	XGrabButton(display, AnyButton, AnyModifier, overlayWindow, True /*owner_events - proverit*/, 0/*event_mask*/, GrabModeAsync, GrabModeAsync, None, None);
+	
 }
 
 bool GawmWindowManager::isKnownWindow(Window window)
