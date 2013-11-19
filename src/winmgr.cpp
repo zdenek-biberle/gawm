@@ -168,8 +168,8 @@ void GawmWindowManager::allowInputPassthrough()
 	XFixesDestroyRegion(display, region);
 	
 	// experiment2
-	XGrabPointer(display, overlayWindow, True /*owner_events - proverit*/, 0/*event_mask*/, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
-	XGrabButton(display, AnyButton, AnyModifier, overlayWindow, True /*owner_events - proverit*/, 0/*event_mask*/, GrabModeAsync, GrabModeAsync, None, None);
+	//XGrabPointer(display, overlayWindow, True /*owner_events - proverit*/, 0/*event_mask*/, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
+	//XGrabButton(display, AnyButton, AnyModifier, overlayWindow, True /*owner_events - proverit*/, 0/*event_mask*/, GrabModeAsync, GrabModeAsync, None, None);
 	
 }
 
@@ -181,6 +181,15 @@ bool GawmWindowManager::isKnownWindow(Window window)
 	}
 	else {
 		return false;
+	}
+}
+
+GawmWindow* GawmWindowManager::getHighestWindow()
+{
+	if(!sortedWindows.empty()){
+		return sortedWindows.front();
+	}else{
+		return NULL;
 	}
 }
 

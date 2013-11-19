@@ -37,6 +37,8 @@ public:
 	
 	bool isKnownWindow(Window window);
 	
+	GawmWindow *getHighestWindow();
+	
 	GawmWindow *getHighestWindowAtLocation(int lX, int lY);
 	
 	void insertWindow(Window window, int x, int y, int width, int height);

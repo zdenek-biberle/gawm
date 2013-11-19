@@ -86,23 +86,37 @@ int main()
 					std::cout << "Stisknuto Win+Esc = Escape from window manager" << std::endl;
 					run = false;
 				}
-			}
-			else if (event.type == ButtonPress)
-			{
-				if (event.xbutton.button == 1)
-				{ // kliknuto levym tlacitkem mysi
-					std::cout << "Stisknuto leve mysitko";
+				else
+				{
+					// klavesy ktere nezajimaji WM jsou zaslany aktivnimu (nejvyssimu) oknu
+					GawmWindow *w = wm.getHighestWindow();
 					
-					GawmWindow *w = wm.getHighestWindowAtLocation(event.xbutton.x_root, event.xbutton.y_root);
-					
-					std::cout << " na " << event.xbutton.x_root << "x" << event.xbutton.y_root << ", kde je ";
+					std::cout << "Klavesa ";
 					if(w == NULL){
 						std::cout << "plocha" << std::endl;
 					}else{
 						std::cout << "okno " << w->window << std::endl;
 					}
 					
-					if(w != NULL) wm.raiseWindow(w->window);
+					if(w != NULL){
+						XSendEvent(wm.display, w->window, False, 0, &event);
+					}
+				}
+			}
+			else if (event.type == ButtonPress || event.type == ButtonRelease)
+			{
+				GawmWindow *w = wm.getHighestWindowAtLocation(event.xbutton.x_root, event.xbutton.y_root);
+				
+				std::cout << "Stisknuto/uvolneno mysitko na " << event.xbutton.x_root << "x" << event.xbutton.y_root << ", kde je ";
+				if(w == NULL){
+					std::cout << "plocha" << std::endl;
+				}else{
+					std::cout << "okno " << w->window << std::endl;
+				}
+				
+				if(w != NULL){
+					wm.raiseWindow(w->window);
+					XSendEvent(wm.display, w->window, False, 0, &event);
 				}
 			}
 			else if (event.type == ReparentNotify)
