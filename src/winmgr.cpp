@@ -59,9 +59,9 @@ void GawmWindowManager::render()
 	glClear(GL_COLOR_BUFFER_BIT);
 	glEnable(GL_TEXTURE_2D);
 
-	for (auto knownWindow : knownWindows)
+	for (auto it=sortedWindows.rbegin(); it!=sortedWindows.rend(); ++it)
 	{
-		knownWindow.second->render();
+		(*it)->render();
 	}
 
 	GLenum err;
@@ -223,9 +223,9 @@ void GawmWindowManager::setVisibilityOfWindow(Window window, bool visible)
 void GawmWindowManager::raiseWindow(Window window)
 {
 	XRaiseWindow(display, window);
-	GawmWindow *w = &knownWindows.at(window);
-	sortedWindows.remove(w);
-	sortedWindows.push_front(w);
+	GawmWindow *gw = &knownWindows.at(window);
+	sortedWindows.remove(gw);
+	sortedWindows.push_front(gw);
 }
 
 void GawmWindowManager::initKnownWindows()
