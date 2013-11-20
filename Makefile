@@ -74,10 +74,14 @@ testSmall: runSmall test_
 
 # Test s více výpisy
 testDbg: debug
-	xinit './$(program)-dbg' -- /usr/bin/Xephyr $(display) -screen 640x480 &
+	xinit './$(program)-dbg' -- /usr/bin/Xephyr $(display) -screen 640x480 $(CURSOR) &
 	runner=$$(bash ./get_pid.sh './$(program)-dbg')
 	DISPLAY=$(display) xterm -geometry 68x29+0+0 &
 	DISPLAY=$(display) xterm -geometry 100x17+5+5 &
+
+# Test když se nezobrazuje kurzor
+testCursor:
+	make 'CURSOR=-host-cursor' testDbg
 
 valgrind: debug
 	/usr/bin/Xephyr $(display) & \
@@ -106,7 +110,9 @@ kdbg: debug
 #  Debug
 #  *****
 
-debug: $(addprefix obj/dbg/,$(addsuffix .o,$(SOURCES)))
+debug: $(program)-dbg
+
+$(program)-dbg: $(addprefix obj/dbg/,$(addsuffix .o,$(SOURCES)))
 	$(CXX) -o '$(program)-dbg' $^ $(CXXFLAGS) $(BRUTAL) $(LDB) $(LINK)
 
 clean:
