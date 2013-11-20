@@ -13,10 +13,10 @@ public:
 	const int screen;
 	const Window window;
 	
-	const static int borderTop = 10;
-	const static int borderRight = 2;
-	const static int borderBottom = 2;
-	const static int borderLeft = 2;
+	const static int borderTop = 20;
+	const static int borderRight = 4;
+	const static int borderBottom = 4;
+	const static int borderLeft = 4;
 
 	int x;
 	int y;
@@ -45,7 +45,7 @@ public:
 	
 	bool handlePoint(int pX, int pY); // bod v dekoraci umoznujici presun okna
 	
-	void render();
+	void render(double zoom);
 	
 	bool isVisible();
 	

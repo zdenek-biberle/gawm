@@ -119,7 +119,7 @@ int main()
 					std::cout << "okno " << w->window << std::endl;
 				}
 				
-				if(w != NULL){
+				if(w != NULL){ // nad oknem
 					wm.raiseWindow(w->window);
 					XSendEvent(wm.display, w->window, False, 0, &event);
 					
@@ -128,6 +128,17 @@ int main()
 						draggedWindow = w;
 						dragStartX = event.xbutton.x_root;
 						dragStartY = event.xbutton.y_root;
+					}
+				}else{ // nad plochou
+					if(event.type == ButtonPress && event.xbutton.button == Button4) // scroll nahoru
+					{
+						std::cout << "prizoomovani" << std::endl;
+						wm.zoomIn();
+					}
+					if(event.type == ButtonPress && event.xbutton.button == Button5) // scroll dolu
+					{
+						std::cout << "odzoomovani" << std::endl;
+						wm.zoomOut();
 					}
 				}
 				

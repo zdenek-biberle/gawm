@@ -30,6 +30,8 @@ public:
 	typedef std::list<GawmWindow*> TSortedWindows;
 	TSortedWindows sortedWindows;
 	
+	double zoom = 1.0;
+	
 	GawmWindowManager();
 	~GawmWindowManager();
 	
@@ -52,6 +54,10 @@ public:
 	void raiseWindow(Window window);
 	
 	void moveResizeWindow(GawmWindow *window, int newX, int newY, int newWidth, int newHeight);
+	
+	void zoomIn();
+	
+	void zoomOut();
 	
 private:
 	

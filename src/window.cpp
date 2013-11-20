@@ -125,15 +125,19 @@ void GawmWindow::reloadPixmap(){
 	}
 }
 
-void GawmWindow::render(){
+void GawmWindow::render(double zoom){
 	
 
 	if(isVisible())
 	{
+		glPushMatrix();
+		glScaled(zoom, zoom, 1.0);
+		
 		reloadPixmap();
-		// okraje oken
+		
+		// pozadi dekorace
 		glBindTexture(GL_TEXTURE_2D, 0);
-		GLubyte color[] = {200,200,200};
+		GLubyte color[] = {150,150,150};
 		glBegin(GL_QUADS);
 		glColor3ubv(color);
 		glVertex2i(x-borderLeft, y-borderTop);
@@ -142,12 +146,29 @@ void GawmWindow::render(){
 		glVertex2i(x+width+borderRight, y-borderTop);
 		glEnd();
 		
+		// okraje dekorace
+		GLubyte color2[] = {0,0,0};
+		glBegin(GL_LINES);
+		glColor3ubv(color2);
+		glVertex2i(x-borderLeft, y-borderTop);
+		glVertex2i(x-borderLeft, y+height+borderBottom);
+		glVertex2i(x-borderLeft, y+height+borderBottom);
+		glVertex2i(x+width+borderRight, y+height+borderBottom);
+		glVertex2i(x+width+borderRight, y+height+borderBottom);
+		glVertex2i(x+width+borderRight, y-borderTop);
+		glVertex2i(x+width+borderRight, y-borderTop);
+		glVertex2i(x-borderLeft, y-borderTop);
+		glEnd();
+		
+		// obsah okna
 		glBindTexture(GL_TEXTURE_2D, glTexture);
 		glXBindTexImageEXT(display, glxPixmap, GLX_FRONT_LEFT_EXT, nullptr);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		
+		GLubyte color3[] = {255,255,255};
 		glBegin(GL_QUADS);
+		glColor3ubv(color3);
 		glTexCoord2f(0.0f, 0.0f);
 		glVertex2i(x, y);
 		glTexCoord2f(0.0f, 1.0f);
@@ -158,6 +179,8 @@ void GawmWindow::render(){
 		glVertex2i(x + width, y);
 		glEnd();
 		glXReleaseTexImageEXT (display, glxPixmap, GLX_FRONT_LEFT_EXT);
+		
+		glPopMatrix();
 	}
 }
 
