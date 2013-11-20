@@ -53,25 +53,23 @@ GawmWindowManager::~GawmWindowManager()
 
 void GawmWindowManager::render()
 {
-
 	// pozadi plochy
 	glClearColor(0.25, 0.25, 0.25, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT); // FIXME: Způsobuje leaky!
 	glEnable(GL_TEXTURE_2D);
-
+	
 	for (auto it=sortedWindows.rbegin(); it!=sortedWindows.rend(); ++it)
 	{
-		(*it)->render();
+		(*it)->render(zoom);
 	}
-
+	
 	GLenum err;
 	while ((err = glGetError()) != GL_NO_ERROR)
 	{
 		cerr_line << "GL error: " << err << std::endl;
 	}
-
+	
 	glXSwapBuffers(display, window);
-
 }
 
 void GawmWindowManager::initFbConfig()
@@ -240,6 +238,16 @@ void GawmWindowManager::raiseWindow(Window window)
 void GawmWindowManager::moveResizeWindow(GawmWindow *window, int newX, int newY, int newWidth, int newHeight)
 {
 	XMoveResizeWindow(display, window->window, newX, newY, newWidth, newHeight);
+}
+
+void GawmWindowManager::zoomIn()
+{
+	zoom += 0.03;
+}
+
+void GawmWindowManager::zoomOut()
+{
+	zoom -= 0.03;
 }
 
 void GawmWindowManager::initKnownWindows()
