@@ -147,7 +147,7 @@ int main()
 					
 					dbg_e_motion << "presun okna " << draggedWindow->window << " z " << dragStartX << "," << dragStartY;
 					dbg_e_motion << " na " << draggedWindow->x+xdiff << "," << draggedWindow->y+ydiff << std::endl;
-					wm.moveResizeWindow(draggedWindow, draggedWindow->x+xdiff, draggedWindow->y+ydiff, attr.width, attr.height);
+					wm.moveResizeWindow(draggedWindow, attr.x+xdiff, attr.y+ydiff, attr.width, attr.height);
 					
 					dragStartX = event.xmotion.x_root;
 					dragStartY = event.xmotion.y_root;
