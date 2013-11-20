@@ -56,7 +56,7 @@ void GawmWindowManager::render()
 
 	// pozadi plochy
 	glClearColor(0.25, 0.25, 0.25, 1.0);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT); // FIXME: Způsobuje leaky!
 	glEnable(GL_TEXTURE_2D);
 
 	for (auto it=sortedWindows.rbegin(); it!=sortedWindows.rend(); ++it)

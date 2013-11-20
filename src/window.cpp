@@ -59,11 +59,11 @@ void GawmWindow::reloadPixmap(){
 
 		int nFbConfigs;
 		auto visualid = XVisualIDFromVisual(attribs.visual);
-		auto fbConfigs = glXGetFBConfigs(display, screen, &nFbConfigs);
+		auto fbConfigs = glXGetFBConfigs(display, screen, &nFbConfigs); // FIXME: Způsobuje leaky!
 		int i;
 		for (i = 0; i < nFbConfigs; i++)
 		{
-			auto visinfo = glXGetVisualFromFBConfig(display, fbConfigs[i]);
+			auto visinfo = glXGetVisualFromFBConfig(display, fbConfigs[i]); // FIXME: Způsobuje leaky!
 			if (!visinfo || visinfo->visualid != visualid)
 				continue;
 
@@ -110,10 +110,10 @@ void GawmWindow::reloadPixmap(){
 		{
 			pixmap = XCompositeNameWindowPixmap(display, window);
 			dbg_w_pixmap << "pixmap: " << pixmap << std::endl;
-			glxPixmap = glXCreatePixmap(display, fbConfigs[i], pixmap, pixmapAttribs);
+			glxPixmap = glXCreatePixmap(display, fbConfigs[i], pixmap, pixmapAttribs); // FIXME: Způsobuje leaky!
 			dbg_w_pixmap << "glxPixmap: " << glxPixmap << std::endl;
 
-			glGenTextures (1, &glTexture);
+			glGenTextures (1, &glTexture); // FIXME: Způsobuje leaky!
 
 			XSync(display, False);
 			hasPixmap = true;
@@ -135,7 +135,7 @@ void GawmWindow::render(){
 		// okraje oken
 		glBindTexture(GL_TEXTURE_2D, 0);
 		GLubyte color[] = {200,200,200};
-		glBegin(GL_QUADS);
+		glBegin(GL_QUADS); // FIXME: Způsobuje leaky!
 		glColor3ubv(color);
 		glVertex2i(x-borderLeft, y-borderTop);
 		glVertex2i(x-borderLeft, y+height+borderBottom);
@@ -144,11 +144,11 @@ void GawmWindow::render(){
 		glEnd();
 		
 		glBindTexture(GL_TEXTURE_2D, glTexture);
-		glXBindTexImageEXT(display, glxPixmap, GLX_FRONT_LEFT_EXT, nullptr);
+		glXBindTexImageEXT(display, glxPixmap, GLX_FRONT_LEFT_EXT, nullptr); // FIXME: Způsobuje leaky!
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		
-		glBegin(GL_QUADS);
+		glBegin(GL_QUADS); // FIXME: Způsobuje leaky!
 		glTexCoord2f(0.0f, 0.0f);
 		glVertex2i(x, y);
 		glTexCoord2f(0.0f, 1.0f);

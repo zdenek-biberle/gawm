@@ -82,7 +82,13 @@ testDbg: debug
 valgrind: debug
 	/usr/bin/Xephyr $(display) & \
 	xephyr_p=$$!; \
-	DISPLAY=$(display) valgrind --tool=memcheck --leak-check=yes --show-reachable=yes './$(program)-dbg'; \
+	DISPLAY=$(display) valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=definite,possible './$(program)-dbg'; \
+	kill $$xephyr_p;
+
+valgrind_reachable: debug
+	/usr/bin/Xephyr $(display) & \
+	xephyr_p=$$!; \
+	DISPLAY=$(display) valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=all './$(program)-dbg'; \
 	kill $$xephyr_p;
 
 gdb: debug
