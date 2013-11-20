@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <iostream>
 
+#include "debug.hpp"
 #include "utils.hpp"
 #include "winmgr.hpp"
 #include "window.hpp"
@@ -55,21 +56,21 @@ int main()
 			else if (event.type == DestroyNotify)
 			{
 				XDestroyWindowEvent& dwe = event.xdestroywindow;
-				std::cout << "Erase ..." << std::endl;
+				dbg_w_destroy << "Erase ..." << std::endl;
 				wm.knownWindows.erase(dwe.window);
-				std::cout << "Erase done!" << std::endl;
+				dbg_w_destroy << "Erase done!" << std::endl;
 			}
 			else if (event.type == ClientMessage)
 			{
 				XClientMessageEvent& cme = event.xclient;
-				std::cout << "ClientMessage s formatem " << cme.format << "; nevim, co s tim..." << std::endl;
+				cerr_line << "ClientMessage s formatem " << cme.format << "; nevim, co s tim..." << std::endl;
 			}
 			else if (event.type == ConfigureNotify)
 			{
 				XConfigureEvent& xce = event.xconfigure;
 				if (wm.knownWindows.find(xce.window) == wm.knownWindows.end())
 				{
-					std::cout << "OH SHIT: o okne " << xce.window << " nic nevime, WTF?" << std::endl;
+					cerr_line << "OH SHIT: o okne " << xce.window << " nic nevime, WTF?" << std::endl;
 				}
 				else
 				{
@@ -88,7 +89,7 @@ int main()
 			{
 				if (event.xkey.keycode == Escape && event.xkey.state & Mod4Mask)
 				{
-					std::cout << "Stisknuto Win+Esc = Escape from window manager" << std::endl;
+					dbg_out << "Stisknuto Win+Esc = Escape from window manager" << std::endl;
 					run = false;
 				}
 				else
@@ -96,11 +97,11 @@ int main()
 					// klavesy ktere nezajimaji WM jsou zaslany aktivnimu (nejvyssimu) oknu
 					GawmWindow *w = wm.getHighestWindow();
 					
-					std::cout << "Klavesa ";
+					dbg_e_keyPress << "Klavesa ";
 					if(w == NULL){
-						std::cout << "plocha" << std::endl;
+						dbg_e_keyPress << "plocha" << std::endl;
 					}else{
-						std::cout << "okno " << w->window << std::endl;
+						dbg_e_keyPress << "okno " << w->window << std::endl;
 					}
 					
 					if(w != NULL){
@@ -112,11 +113,11 @@ int main()
 			{
 				GawmWindow *w = wm.getHighestWindowAtLocation(event.xbutton.x_root, event.xbutton.y_root);
 				
-				std::cout << "Stisknuto/uvolneno mysitko na " << event.xbutton.x_root << "x" << event.xbutton.y_root << ", kde je ";
+				dbg_e_buttonPress << "Stisknuto/uvolneno mysitko na " << event.xbutton.x_root << "x" << event.xbutton.y_root << ", kde je ";
 				if(w == NULL){
-					std::cout << "plocha" << std::endl;
+					dbg_e_buttonPress << "plocha" << std::endl;
 				}else{
-					std::cout << "okno " << w->window << std::endl;
+					dbg_e_buttonPress << "okno " << w->window << std::endl;
 				}
 				
 				if(w != NULL){
@@ -124,7 +125,7 @@ int main()
 					XSendEvent(wm.display, w->window, False, 0, &event);
 					
 					if(event.type == ButtonPress && w->handlePoint(event.xbutton.x_root, event.xbutton.y_root)){
-						std::cout << "zahajeno pretahovani okna " << w->window << std::endl;
+						dbg_e_buttonPress << "zahajeno pretahovani okna " << w->window << std::endl;
 						draggedWindow = w;
 						dragStartX = event.xbutton.x_root;
 						dragStartY = event.xbutton.y_root;
@@ -144,8 +145,8 @@ int main()
 					signed int xdiff = event.xmotion.x_root - dragStartX;
 					signed int ydiff = event.xmotion.y_root - dragStartY;
 					
-					std::cout << "presun okna " << draggedWindow->window << " z " << dragStartX << "," << dragStartY;
-					std::cout << " na " << draggedWindow->x+xdiff << "," << draggedWindow->y+ydiff << std::endl;
+					dbg_e_motion << "presun okna " << draggedWindow->window << " z " << dragStartX << "," << dragStartY;
+					dbg_e_motion << " na " << draggedWindow->x+xdiff << "," << draggedWindow->y+ydiff << std::endl;
 					wm.moveResizeWindow(draggedWindow, draggedWindow->x+xdiff, draggedWindow->y+ydiff, attr.width, attr.height);
 					
 					dragStartX = event.xmotion.x_root;
@@ -155,7 +156,7 @@ int main()
 			else if (event.type == ReparentNotify)
 			{
 				XReparentEvent& xre = event.xreparent;
-				std::cout << "Reparent okna " << xre.window << " k rodici " << xre.parent << " na " << xre.x << ", " << xre.y << std::endl;
+				dbg_e_reparent << "Reparent okna " << xre.window << " k rodici " << xre.parent << " na " << xre.x << ", " << xre.y << std::endl;
 			}
 			else if (event.type == damage_event + XDamageNotify)
 			{
@@ -165,7 +166,7 @@ int main()
 			}
 			else
 			{
-				std::cout << "Dosel mi typ " << event.type << "; nevim, co s tim..." << std::endl;
+				cerr_line << "Dosel mi typ " << event.type << "; nevim, co s tim..." << std::endl;
 			}
 		}
 	}

@@ -4,6 +4,7 @@
 #include <X11/extensions/Xdamage.h>
 #include <X11/extensions/Xcomposite.h>
 
+#include "debug.hpp"
 #include "winmgr.hpp"
 
 int xerrorhandler(Display *dsp, XErrorEvent *error)
@@ -11,7 +12,7 @@ int xerrorhandler(Display *dsp, XErrorEvent *error)
 	char errorstring[128];
 	XGetErrorText(dsp, error->error_code, errorstring, 128);
  
-	std::cerr << "Xka umrely: " << errorstring << std::endl;
+	cerr_line << "Xka umrely: " << errorstring << std::endl;
 	throw std::runtime_error("Xka umrely");
 }
 
@@ -38,7 +39,7 @@ GawmWindowManager::GawmWindowManager()
 	initGL();
 	allowInputPassthrough();
 	
-	std::cout << "GawmWindowManager: Screen: " << screen << ", rootWindow: " << rootWindow << ", overlayWindow: " << overlayWindow 
+	dbg_out << "GawmWindowManager: Screen: " << screen << ", rootWindow: " << rootWindow << ", overlayWindow: " << overlayWindow
 			<< ", GL window: " << window << std::endl;
 }
 
@@ -66,7 +67,7 @@ void GawmWindowManager::render()
 	GLenum err;
 	while ((err = glGetError()) != GL_NO_ERROR)
 	{
-		std::cout << "GL error: " << err << std::endl;
+		cerr_line << "GL error: " << err << std::endl;
 	}
 
 	glXSwapBuffers(display, window);
@@ -266,7 +267,7 @@ void GawmWindowManager::initKnownWindows()
 	{
 		if (children[i] == overlayWindow)
 		{
-			std::cout << "Jedno z deti roota je overlay, to je asi spatne" << std::endl;
+			cerr_line << "Jedno z deti roota je overlay, to je asi spatne" << std::endl;
 		}
 		
 		XWindowAttributes w_attr;
@@ -275,7 +276,7 @@ void GawmWindowManager::initKnownWindows()
 		if (status == 0)
 		{
 			// Nemohu získat geometrii okna, pokračuji dalším.
-			std::cout << "Okno je " << children[i] << " a nemá geometrii" << std::endl;
+			cerr_line << "Okno je " << children[i] << " a nemá geometrii" << std::endl;
 			continue;
 		}
 

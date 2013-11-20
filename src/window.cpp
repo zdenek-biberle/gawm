@@ -4,6 +4,7 @@
 #include <X11/extensions/Xcomposite.h>
 #include <X11/extensions/Xdamage.h>
 
+#include "debug.hpp"
 #include "window.hpp"
 #include "gawmGl.hpp"
 
@@ -24,7 +25,7 @@ GawmWindow::GawmWindow(Display *display, int screen, Window window, int x, int y
 	hasPixmap(false),
 	visible(false)
 {
-	std::cout << "CreateNotify: Vytvoreno okno " << window << " na " << x << ", " << y
+	dbg_w_create << "CreateNotify: Vytvoreno okno " << window << " na " << x << ", " << y
 			  << " velikosti " << width << "x" << height << std::endl;
 	
 	damage = XDamageCreate(display, window, XDamageReportNonEmpty);
@@ -32,7 +33,7 @@ GawmWindow::GawmWindow(Display *display, int screen, Window window, int x, int y
 
 GawmWindow::~GawmWindow()
 {
-	std::cout << "DestroyNotify: Zniceno okno " << window << std::endl;
+	dbg_w_destroy << "DestroyNotify: Zniceno okno " << window << std::endl;
 	XDamageDestroy(display, damage);
 }
 
@@ -42,7 +43,7 @@ void GawmWindow::configure(int newX, int newY, int newWidth, int newHeight){
 	width = newWidth;
 	height = newHeight;
 
-	std::cout << "ConfigureNotify: Zmeneno okno " << window
+	dbg_w_conf << "ConfigureNotify: Zmeneno okno " << window
 				<< " s pozici " << x << ", " << y << " a velikosti "
 				<< width << "x" << height << std::endl;
 
@@ -52,7 +53,7 @@ void GawmWindow::configure(int newX, int newY, int newWidth, int newHeight){
 void GawmWindow::reloadPixmap(){
 	if (!hasPixmap && isVisible())
 	{
-		std::cout << "reloadPixmap(" << display << "," << window << ")" << std::endl;
+		dbg_w_pixmap << "reloadPixmap(" << display << "," << window << ")" << std::endl;
 		XWindowAttributes attribs;
 		XGetWindowAttributes(display, window, &attribs);
 
@@ -108,19 +109,19 @@ void GawmWindow::reloadPixmap(){
 		if (wAttr.map_state == IsViewable)
 		{
 			pixmap = XCompositeNameWindowPixmap(display, window);
-			std::cout << "pixmap: " << pixmap << std::endl;
+			dbg_w_pixmap << "pixmap: " << pixmap << std::endl;
 			glxPixmap = glXCreatePixmap(display, fbConfigs[i], pixmap, pixmapAttribs);
-			std::cout << "glxPixmap: " << glxPixmap << std::endl;
+			dbg_w_pixmap << "glxPixmap: " << glxPixmap << std::endl;
 
 			glGenTextures (1, &glTexture);
 
 			XSync(display, False);
 			hasPixmap = true;
-			std::cout << "reload pixmapy uspesny" << std::endl;
+			dbg_w_pixmap << "reload pixmapy uspesny" << std::endl;
 		}
 		else
 		{
-			std::cout << "reload pixmapy neprobehl, okno neni viewable, tohle by asi nemelo nastat" << std::endl;
+			cerr_line << "reload pixmapy neprobehl, okno neni viewable, tohle by asi nemelo nastat" << std::endl;
 		}
 	}
 }

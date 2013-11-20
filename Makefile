@@ -55,11 +55,11 @@ strict:
 
 # Spustí testy
 run: $(program)
-	xinit ./$(program) -- /usr/bin/Xephyr $(display) -screen 800x600 &
+	xinit './$(program)' -- /usr/bin/Xephyr $(display) -screen 800x600 &
 
 # Pro Bibu, kterej ma malej kompl
 runSmall: $(program)
-	xinit ./$(program) -- /usr/bin/Xephyr $(display) -screen 640x480 &
+	xinit './$(program)' -- /usr/bin/Xephyr $(display) -screen 640x480 &
 
 # Nespouštět, pokud neběží gawm!
 test_:
@@ -71,6 +71,13 @@ test: run test_
 
 # Pro Bibu, kterej ma malej kompl
 testSmall: runSmall test_
+
+# Test s více výpisy
+testDbg: debug
+	xinit './$(program)-dbg' -- /usr/bin/Xephyr $(display) -screen 640x480 &
+	runner=$$(bash ./get_pid.sh './$(program)-dbg')
+	DISPLAY=$(display) xterm -geometry 68x29+0+0 &
+	DISPLAY=$(display) xterm -geometry 100x17+5+5 &
 
 valgrind: debug
 	/usr/bin/Xephyr $(display) & \
