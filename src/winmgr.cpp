@@ -13,7 +13,6 @@ int xerrorhandler(Display *dsp, XErrorEvent *error)
  
 	std::cerr << "Xka umrely: " << errorstring << std::endl;
 	throw std::runtime_error("Xka umrely");
-	//exit(-1);
 }
 
 GawmWindowManager::GawmWindowManager()
@@ -24,7 +23,7 @@ GawmWindowManager::GawmWindowManager()
 		throw std::runtime_error("Nepodarilo se otevrit display!");
 	}
 
-	XSynchronize(display, True); // Synchronizace s xserverem pro debugování - vygoogleno
+	XSynchronize(display, True); // Synchronizace s xserverem pro debugování
 	XSetErrorHandler(xerrorhandler);
 
 	screen = DefaultScreen(display);
@@ -235,6 +234,11 @@ void GawmWindowManager::raiseWindow(Window window)
 	GawmWindow *gw = &knownWindows.at(window);
 	sortedWindows.remove(gw);
 	sortedWindows.push_front(gw);
+}
+
+void GawmWindowManager::moveResizeWindow(GawmWindow *window, int newX, int newY, int newWidth, int newHeight)
+{
+	XMoveResizeWindow(display, window->window, newX, newY, newWidth, newHeight);
 }
 
 void GawmWindowManager::initKnownWindows()

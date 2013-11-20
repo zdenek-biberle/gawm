@@ -136,12 +136,11 @@ void GawmWindow::render(){
 		GLubyte color[] = {200,200,200};
 		glBegin(GL_QUADS);
 		glColor3ubv(color);
-		glVertex2i(x-2, y-10);
-		glVertex2i(x-2, y+height+2);
-		glVertex2i(x+width+2, y+height+2);
-		glVertex2i(x+width+2, y-10);
+		glVertex2i(x-borderLeft, y-borderTop);
+		glVertex2i(x-borderLeft, y+height+borderBottom);
+		glVertex2i(x+width+borderRight, y+height+borderBottom);
+		glVertex2i(x+width+borderRight, y-borderTop);
 		glEnd();
-		
 		
 		glBindTexture(GL_TEXTURE_2D, glTexture);
 		glXBindTexImageEXT(display, glxPixmap, GLX_FRONT_LEFT_EXT, nullptr);
@@ -149,7 +148,6 @@ void GawmWindow::render(){
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		
 		glBegin(GL_QUADS);
-		//glColor3ubv(color);
 		glTexCoord2f(0.0f, 0.0f);
 		glVertex2i(x, y);
 		glTexCoord2f(0.0f, 1.0f);
@@ -179,8 +177,15 @@ void GawmWindow::doDamage()
 }
 
 bool GawmWindow::containsPoint(int pX, int pY)
-{
-	return (x<=pX && pX<=x+width) && (y<=pY && pY<=y+height);
+{	
+	return (x-borderLeft <= pX && pX <= x+width+borderRight) &&
+	       (y-borderTop  <= pY && pY <= y+height+borderBottom);
+}
+
+bool GawmWindow::handlePoint(int pX, int pY)
+{	
+	return (x-borderLeft <= pX && pX <= x+width+borderRight) &&
+	       (y-borderTop  <= pY && pY < y);
 }
 
 /*       _\|/_

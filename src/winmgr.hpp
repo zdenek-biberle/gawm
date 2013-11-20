@@ -51,6 +51,8 @@ public:
 	
 	void raiseWindow(Window window);
 	
+	void moveResizeWindow(GawmWindow *window, int newX, int newY, int newWidth, int newHeight);
+	
 private:
 	
 	void initFbConfig();

@@ -12,12 +12,18 @@ public:
 	Display * const display;
 	const int screen;
 	const Window window;
+	
+	const static int borderTop = 10;
+	const static int borderRight = 2;
+	const static int borderBottom = 2;
+	const static int borderLeft = 2;
 
-private:
 	int x;
 	int y;
 	int width;
 	int height;
+
+private:
 	const GLubyte* color;
 	Pixmap pixmap;
 	GLXPixmap glxPixmap;
@@ -35,7 +41,9 @@ public:
 	
 	void reloadPixmap();
 	
-	bool containsPoint(int pX, int pY);
+	bool containsPoint(int pX, int pY); // bod v okne nebo jeho dekoraci
+	
+	bool handlePoint(int pX, int pY); // bod v dekoraci umoznujici presun okna
 	
 	void render();
 	

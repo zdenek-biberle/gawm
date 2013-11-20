@@ -23,12 +23,17 @@ int main()
 	KeyCode Escape = XKeysymToKeycode(wm.display, XStringToKeysym("Escape"));
 	XGrabKey(wm.display, Escape, Mod4Mask, wm.window, True, GrabModeSync, GrabModeSync); // Mod4Mask / AnyModifier
 	XGrabButton(wm.display, Button1, AnyModifier, wm.window, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
+	const unsigned int event_mask = ButtonPressMask | ButtonReleaseMask | PointerMotionMask | FocusChangeMask | EnterWindowMask | LeaveWindowMask;
+	XGrabPointer(wm.display, wm.overlayWindow, True, event_mask, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
 	XSelectInput(wm.display, wm.window, ButtonPressMask + KeyPressMask);
 	
 	int damage_event, damage_error; // The event base is important here
 	XDamageQueryExtension(wm.display, &damage_event, &damage_error);
 	
 	bool run = true;
+	
+	GawmWindow *draggedWindow = NULL;
+	int dragStartX, dragStartY;
 	
 	while (run)
 	{
@@ -117,6 +122,34 @@ int main()
 				if(w != NULL){
 					wm.raiseWindow(w->window);
 					XSendEvent(wm.display, w->window, False, 0, &event);
+					
+					if(event.type == ButtonPress && w->handlePoint(event.xbutton.x_root, event.xbutton.y_root)){
+						std::cout << "zahajeno pretahovani okna " << w->window << std::endl;
+						draggedWindow = w;
+						dragStartX = event.xbutton.x_root;
+						dragStartY = event.xbutton.y_root;
+					}
+				}
+				
+				if(event.type == ButtonRelease){
+					draggedWindow = NULL;
+				}
+			}
+			else if (event.type == MotionNotify)
+			{
+				// presun okna
+				if(draggedWindow != NULL){
+					XWindowAttributes attr;
+					XGetWindowAttributes(wm.display, draggedWindow->window, &attr);
+					signed int xdiff = event.xmotion.x_root - dragStartX;
+					signed int ydiff = event.xmotion.y_root - dragStartY;
+					
+					std::cout << "presun okna " << draggedWindow->window << " z " << dragStartX << "," << dragStartY;
+					std::cout << " na " << draggedWindow->x+xdiff << "," << draggedWindow->y+ydiff << std::endl;
+					wm.moveResizeWindow(draggedWindow, draggedWindow->x+xdiff, draggedWindow->y+ydiff, attr.width, attr.height);
+					
+					dragStartX = event.xmotion.x_root;
+					dragStartY = event.xmotion.y_root;
 				}
 			}
 			else if (event.type == ReparentNotify)
