@@ -54,6 +54,8 @@ public:
 	void raiseWindow(Window window);
 	
 	void moveResizeWindow(GawmWindow *window, int newX, int newY, int newWidth, int newHeight);
+
+	void moveDesktop(int xdiff, int ydiff);
 	
 	inline void zoomIn(){
 		zoom += 0.03;

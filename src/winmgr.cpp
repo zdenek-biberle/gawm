@@ -240,6 +240,16 @@ void GawmWindowManager::moveResizeWindow(GawmWindow *window, int newX, int newY,
 	XMoveResizeWindow(display, window->window, newX, newY, newWidth, newHeight);
 }
 
+void GawmWindowManager::moveDesktop(int xdiff, int ydiff)
+{
+	for (GawmWindow* draggedWindow : sortedWindows)
+	{
+		XWindowAttributes attr;
+		XGetWindowAttributes(display, draggedWindow->window, &attr);
+		XMoveResizeWindow(display, draggedWindow->window, attr.x+xdiff, attr.y+ydiff, draggedWindow->width, draggedWindow->height);
+	}
+}
+
 void GawmWindowManager::initKnownWindows()
 {
 	Window root;

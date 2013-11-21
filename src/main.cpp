@@ -144,19 +144,19 @@ int main()
 				}else{ // nad plochou
 					if(event.type == ButtonPress && event.xbutton.button == Button1) // zahajeni posunu plochy
 					{
-						std::cout << "posun plochy" << std::endl;
+						dbg_e_buttonPress << "posun plochy" << std::endl;
 						draggedWindow = (GawmWindow*) &wm; // pretahovanym oknem je window manager
 						dragStartX = x;
 						dragStartY = y;
 					}
 					if(event.type == ButtonPress && event.xbutton.button == Button4) // scroll nahoru
 					{
-						std::cout << "prizoomovani" << std::endl;
+						dbg_e_buttonPress << "prizoomovani" << std::endl;
 						wm.zoomIn();
 					}
 					if(event.type == ButtonPress && event.xbutton.button == Button5) // scroll dolu
 					{
-						std::cout << "odzoomovani" << std::endl;
+						dbg_e_buttonPress << "odzoomovani" << std::endl;
 						wm.zoomOut();
 					}
 				}
@@ -172,7 +172,14 @@ int main()
 				
 				
 				if(draggedWindow == (GawmWindow*)&wm){ // presun plochy
-					
+					signed int xdiff = x - dragStartX;
+					signed int ydiff = y - dragStartY;
+
+					dbg_e_motion << "presun plochy o " << xdiff << "," << ydiff << std::endl;
+					wm.moveDesktop(xdiff, ydiff);
+
+					dragStartX = x;
+					dragStartY = y;
 				}
 				else if(draggedWindow != NULL){ // presun okna
 					XWindowAttributes attr;
