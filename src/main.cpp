@@ -96,8 +96,14 @@ int main()
 				{
 					// klavesy ktere nezajimaji WM jsou zaslany aktivnimu (nejvyssimu) oknu
 					GawmWindow *w = wm.getHighestWindow();
+
+					int keysyms_per_keycode_return;
+					KeySym *keysym = XGetKeyboardMapping(wm.display, event.xkey.keycode, 1, &keysyms_per_keycode_return);
+					if (keysyms_per_keycode_return) {
+						dbg_e_keyPress << "Klavesa " << XKeysymToString( keysym[0] ) << " ";
+					}
+					XFree(keysym);
 					
-					dbg_e_keyPress << "Klavesa ";
 					if(w == NULL){
 						dbg_e_keyPress << "plocha" << std::endl;
 					}else{
@@ -151,12 +157,34 @@ int main()
 					}
 					if(event.type == ButtonPress && event.xbutton.button == Button4) // scroll nahoru
 					{
-						dbg_e_buttonPress << "prizoomovani" << std::endl;
+						XWindowAttributes *attr;
+						attr = &wm.overlayWindowAttribs;
+						int xdiff = attr->width/2 - event.xbutton.x_root;
+						int ydiff = attr->height/2 - event.xbutton.y_root;
+						int xdiff_zoom = wm.reverseConvertX(attr->width/2) - x;
+						int ydiff_zoom = wm.reverseConvertY(attr->height/2) - y;
+
+						dbg_e_buttonPress << "vzálenost kurzoru od středu obrazovky: " << xdiff << "," << ydiff << std::endl;
+						dbg_e_buttonPress << "vzálenost kurzoru od středu obrazovky (zoom): " << xdiff_zoom << "," << ydiff_zoom << std::endl;
+						wm.moveDesktop(xdiff/2, ydiff/2);
+
+						dbg_e_buttonPress << "prizoomovani " << wm.zoom << std::endl;
 						wm.zoomIn();
 					}
 					if(event.type == ButtonPress && event.xbutton.button == Button5) // scroll dolu
 					{
-						dbg_e_buttonPress << "odzoomovani" << std::endl;
+						XWindowAttributes *attr;
+						attr = &wm.overlayWindowAttribs;
+						int xdiff = attr->width/2 - event.xbutton.x_root;
+						int ydiff = attr->height/2 - event.xbutton.y_root;
+						int xdiff_zoom = wm.reverseConvertX(attr->width/2) - x;
+						int ydiff_zoom = wm.reverseConvertY(attr->height/2) - y;
+
+						dbg_e_buttonPress << "vzálenost kurzoru od středu obrazovky: " << xdiff << "," << ydiff << std::endl;
+						dbg_e_buttonPress << "vzálenost kurzoru od středu obrazovky (zoom): " << xdiff_zoom << "," << ydiff_zoom << std::endl;
+						wm.moveDesktop(-xdiff/2, -ydiff/2);
+
+						dbg_e_buttonPress << "odzoomovani " << wm.zoom << std::endl;
 						wm.zoomOut();
 					}
 				}
@@ -172,10 +200,9 @@ int main()
 				
 				
 				if(draggedWindow == (GawmWindow*)&wm){ // presun plochy
-					signed int xdiff = x - dragStartX;
-					signed int ydiff = y - dragStartY;
+					int xdiff = x - dragStartX;
+					int ydiff = y - dragStartY;
 
-					dbg_e_motion << "presun plochy o " << xdiff << "," << ydiff << std::endl;
 					wm.moveDesktop(xdiff, ydiff);
 
 					dragStartX = x;

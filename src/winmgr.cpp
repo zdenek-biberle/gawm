@@ -242,6 +242,7 @@ void GawmWindowManager::moveResizeWindow(GawmWindow *window, int newX, int newY,
 
 void GawmWindowManager::moveDesktop(int xdiff, int ydiff)
 {
+	dbg_e_motion << "presun plochy o " << xdiff << "," << ydiff << std::endl;
 	for (GawmWindow* draggedWindow : sortedWindows)
 	{
 		XWindowAttributes attr;
