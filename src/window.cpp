@@ -164,7 +164,7 @@ void GawmWindow::render(double zoom){
 		// obsah okna
 		glBindTexture(GL_TEXTURE_2D, glTexture);
 		glXBindTexImageEXT(display, glxPixmap, GLX_FRONT_LEFT_EXT, nullptr); // FIXME: Způsobuje leaky!
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		
 		GLubyte color3[] = {255,255,255};

@@ -142,6 +142,13 @@ int main()
 					XSendEvent(wm.display, w->window, False, 0, &event);
 					
 				}else{ // nad plochou
+					if(event.type == ButtonPress && event.xbutton.button == Button1) // zahajeni posunu plochy
+					{
+						std::cout << "posun plochy" << std::endl;
+						draggedWindow = (GawmWindow*) &wm; // pretahovanym oknem je window manager
+						dragStartX = x;
+						dragStartY = y;
+					}
 					if(event.type == ButtonPress && event.xbutton.button == Button4) // scroll nahoru
 					{
 						std::cout << "prizoomovani" << std::endl;
@@ -163,8 +170,11 @@ int main()
 				int x = wm.reverseConvertX(event.xmotion.x_root);
 				int y = wm.reverseConvertY(event.xmotion.y_root);
 				
-				// presun okna
-				if(draggedWindow != NULL){
+				
+				if(draggedWindow == (GawmWindow*)&wm){ // presun plochy
+					
+				}
+				else if(draggedWindow != NULL){ // presun okna
 					XWindowAttributes attr;
 					XGetWindowAttributes(wm.display, draggedWindow->window, &attr);
 					signed int xdiff = x - dragStartX;
