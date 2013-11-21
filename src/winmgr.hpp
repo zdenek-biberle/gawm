@@ -5,6 +5,7 @@
 #include <boost/ptr_container/ptr_map.hpp>
 #include <X11/extensions/shape.h>
 #include <X11/extensions/Xdamage.h>
+#include "debug.hpp"
 #include "gawmGl.hpp"
 #include "window.hpp"
 
@@ -31,6 +32,7 @@ public:
 	TSortedWindows sortedWindows;
 	
 	double zoom = 1.0;
+	static constexpr double zoom_const = 1.03;
 	
 	GawmWindowManager();
 	~GawmWindowManager();
@@ -58,12 +60,12 @@ public:
 	void moveDesktop(int xdiff, int ydiff);
 	
 	inline void zoomIn(){
-		zoom *= 1.03;
+		zoom *= zoom_const;
 		dbg_e_buttonPress << "zoom = " << zoom << std::endl;
 	}
 	
 	inline void zoomOut(){
-		zoom /= 1.03;
+		zoom /= zoom_const;
 		dbg_e_buttonPress << "zoom = " << zoom << std::endl;
 	}
 	

@@ -157,34 +157,16 @@ int main()
 					}
 					if(event.type == ButtonPress && event.xbutton.button == Button4) // scroll nahoru
 					{
-						XWindowAttributes *attr;
-						attr = &wm.overlayWindowAttribs;
-						int xdiff = attr->width/2 - event.xbutton.x_root;
-						int ydiff = attr->height/2 - event.xbutton.y_root;
-						int xdiff_zoom = wm.reverseConvertX(attr->width/2) - x;
-						int ydiff_zoom = wm.reverseConvertY(attr->height/2) - y;
-
-						dbg_e_buttonPress << "vzálenost kurzoru od středu obrazovky: " << xdiff << "," << ydiff << std::endl;
-						dbg_e_buttonPress << "vzálenost kurzoru od středu obrazovky (zoom): " << xdiff_zoom << "," << ydiff_zoom << std::endl;
-						wm.moveDesktop(xdiff/2, ydiff/2);
-
-						dbg_e_buttonPress << "prizoomovani " << wm.zoom << std::endl;
+						// celá plocha se posune o rozdíl staré a nové pozice kurzoru myši
+						wm.moveDesktop(-(x * wm.zoom_const - x), -(y * wm.zoom_const - y));
+						dbg_e_buttonPress << "prizoomovani" << std::endl;
 						wm.zoomIn();
 					}
 					if(event.type == ButtonPress && event.xbutton.button == Button5) // scroll dolu
 					{
-						XWindowAttributes *attr;
-						attr = &wm.overlayWindowAttribs;
-						int xdiff = attr->width/2 - event.xbutton.x_root;
-						int ydiff = attr->height/2 - event.xbutton.y_root;
-						int xdiff_zoom = wm.reverseConvertX(attr->width/2) - x;
-						int ydiff_zoom = wm.reverseConvertY(attr->height/2) - y;
-
-						dbg_e_buttonPress << "vzálenost kurzoru od středu obrazovky: " << xdiff << "," << ydiff << std::endl;
-						dbg_e_buttonPress << "vzálenost kurzoru od středu obrazovky (zoom): " << xdiff_zoom << "," << ydiff_zoom << std::endl;
-						wm.moveDesktop(-xdiff/2, -ydiff/2);
-
-						dbg_e_buttonPress << "odzoomovani " << wm.zoom << std::endl;
+						// celá plocha se posune o rozdíl staré a nové pozice kurzoru myši
+						wm.moveDesktop(-(x / wm.zoom_const - x), -(y / wm.zoom_const - y));
+						dbg_e_buttonPress << "odzoomovani" << std::endl;
 						wm.zoomOut();
 					}
 				}

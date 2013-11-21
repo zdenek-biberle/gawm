@@ -40,7 +40,7 @@ obj/%.o: src/%.cpp
 
 obj/dbg/%.o: src/%.cpp
 	mkdir -p dep/dbg obj/dbg # Adresare nejsou v gitu
-	$(CXX) -MMD -MP -MF dep/dbg/$*.d -c -o $@ $< $(CXXFLAGS) $(LDB)
+	$(CXX) -MMD -MP -MF dep/dbg/$*.d -c -o $@ $< $(CXXFLAGS) $(BRUTAL) $(LDB)
 
 -include $(addprefix dep/,$(addsuffix .d,$(SOURCES)))
 
