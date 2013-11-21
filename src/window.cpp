@@ -147,6 +147,16 @@ void GawmWindow::render(double zoom){
 		glVertex2i(x+width+borderRight, y-borderTop);
 		glEnd();
 		
+		// zaviraci tlacitko
+		GLubyte colorClose[] = {250,100,100};
+		glBegin(GL_QUADS); // FIXME: Způsobuje leaky!
+		glColor3ubv(colorClose);
+		glVertex2i(x+width-closeWidth, y-borderTop);
+		glVertex2i(x+width, y-borderTop);
+		glVertex2i(x+width, y-borderTop+closeHeight);
+		glVertex2i(x+width-closeWidth, y-borderTop+closeHeight);
+		glEnd();
+		
 		// okraje dekorace
 		GLubyte color2[] = {0,0,0};
 		glBegin(GL_LINES);
@@ -210,6 +220,12 @@ bool GawmWindow::handlePoint(int pX, int pY)
 {	
 	return (x-borderLeft <= pX && pX <= x+width+borderRight) &&
 	       (y-borderTop  <= pY && pY < y);
+}
+
+bool GawmWindow::closePoint(int pX, int pY)
+{	
+	return (x+width-closeWidth <= pX && pX <= x+width) &&
+	       (y-borderTop <= pY && pY < y-borderTop+closeHeight);
 }
 
 /*       _\|/_

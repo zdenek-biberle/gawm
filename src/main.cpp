@@ -131,6 +131,11 @@ int main()
 				
 				if(w != NULL && !(event.xbutton.state&Mod4Mask)){ // prace v okne, pokud je nad oknem a zaroven neni stisknuto Win
 					
+					// zavreni okna, bylo-li kliknuto na zaviraci tlacitko
+					if(event.type == ButtonPress && w->closePoint(x, y)){
+						dbg_e_buttonPress << "zavirani okna " << w->window << std::endl;
+					}
+					
 					// zahajeni pretahovani okna, bylo-li kliknuto na dekoraci nebo s Alt
 					if(event.type == ButtonPress && (w->handlePoint(x, y) || (event.xbutton.state&Mod1Mask))){
 						dbg_e_buttonPress << "zahajeno pretahovani okna " << w->window << std::endl;
