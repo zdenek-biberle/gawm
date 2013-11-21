@@ -17,6 +17,8 @@ public:
 	const static int borderRight = 4;
 	const static int borderBottom = 4;
 	const static int borderLeft = 4;
+	const static int closeWidth = 30;
+	const static int closeHeight = 18;
 
 	int x;
 	int y;
@@ -44,6 +46,8 @@ public:
 	bool containsPoint(int pX, int pY); // bod v okne nebo jeho dekoraci
 	
 	bool handlePoint(int pX, int pY); // bod v dekoraci umoznujici presun okna
+	
+	bool closePoint(int pX, int pY); // bod v dekoraci umoznujici zavreni okna
 	
 	void render(double zoom);
 	

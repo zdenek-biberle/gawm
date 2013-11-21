@@ -129,10 +129,15 @@ int main()
 					dbg_e_buttonPress << "okno " << w->window << std::endl;
 				}
 				
-				if(w != NULL){ // nad oknem
+				if(w != NULL && !(event.xbutton.state&Mod4Mask)){ // prace v okne, pokud je nad oknem a zaroven neni stisknuto Win
 					
-					// zahajeni pretahovani okna
-					if(event.type == ButtonPress && w->handlePoint(x, y)){
+					// zavreni okna, bylo-li kliknuto na zaviraci tlacitko
+					if(event.type == ButtonPress && w->closePoint(x, y)){
+						dbg_e_buttonPress << "zavirani okna " << w->window << std::endl;
+					}
+					
+					// zahajeni pretahovani okna, bylo-li kliknuto na dekoraci nebo s Alt
+					if(event.type == ButtonPress && (w->handlePoint(x, y) || (event.xbutton.state&Mod1Mask))){
 						dbg_e_buttonPress << "zahajeno pretahovani okna " << w->window << std::endl;
 						draggedWindow = w;
 						dragStartX = x;
@@ -147,7 +152,7 @@ int main()
 					event.xbutton.y = event.xbutton.y_root - w->y;
 					XSendEvent(wm.display, w->window, False, 0, &event);
 					
-				}else{ // nad plochou
+				}else{ // neni-li nad oknem, nebo je stisknuto Win, prace nad plochou
 					if(event.type == ButtonPress && event.xbutton.button == Button1) // zahajeni posunu plochy
 					{
 						dbg_e_buttonPress << "posun plochy" << std::endl;
