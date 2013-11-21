@@ -58,11 +58,13 @@ public:
 	void moveDesktop(int xdiff, int ydiff);
 	
 	inline void zoomIn(){
-		zoom += 0.03;
+		zoom *= 1.03;
+		dbg_e_buttonPress << "zoom = " << zoom << std::endl;
 	}
 	
 	inline void zoomOut(){
-		zoom -= 0.03;
+		zoom /= 1.03;
+		dbg_e_buttonPress << "zoom = " << zoom << std::endl;
 	}
 	
 	inline int reverseConvertX(int x){
