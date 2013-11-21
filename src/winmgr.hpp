@@ -55,9 +55,21 @@ public:
 	
 	void moveResizeWindow(GawmWindow *window, int newX, int newY, int newWidth, int newHeight);
 	
-	void zoomIn();
+	inline void zoomIn(){
+		zoom += 0.03;
+	}
 	
-	void zoomOut();
+	inline void zoomOut(){
+		zoom -= 0.03;
+	}
+	
+	inline int reverseConvertX(int x){
+		return x/zoom;
+	}
+	
+	inline int reverseConvertY(int y){
+		return y/zoom;
+	}
 	
 private:
 	

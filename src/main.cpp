@@ -111,9 +111,12 @@ int main()
 			}
 			else if (event.type == ButtonPress || event.type == ButtonRelease)
 			{
-				GawmWindow *w = wm.getHighestWindowAtLocation(event.xbutton.x_root, event.xbutton.y_root);
+				int x = wm.reverseConvertX(event.xbutton.x_root);
+				int y = wm.reverseConvertY(event.xbutton.y_root);
 				
-				dbg_e_buttonPress << "Stisknuto/uvolneno mysitko na " << event.xbutton.x_root << "x" << event.xbutton.y_root << ", kde je ";
+				GawmWindow *w = wm.getHighestWindowAtLocation(x, y);
+				
+				dbg_e_buttonPress << "Stisknuto/uvolneno mysitko na " << x << "x" << y << ", kde je ";
 				if(w == NULL){
 					dbg_e_buttonPress << "plocha" << std::endl;
 				}else{
@@ -121,15 +124,23 @@ int main()
 				}
 				
 				if(w != NULL){ // nad oknem
-					wm.raiseWindow(w->window);
-					XSendEvent(wm.display, w->window, False, 0, &event);
 					
-					if(event.type == ButtonPress && w->handlePoint(event.xbutton.x_root, event.xbutton.y_root)){
+					// zahajeni pretahovani okna
+					if(event.type == ButtonPress && w->handlePoint(x, y)){
 						dbg_e_buttonPress << "zahajeno pretahovani okna " << w->window << std::endl;
 						draggedWindow = w;
-						dragStartX = event.xbutton.x_root;
-						dragStartY = event.xbutton.y_root;
+						dragStartX = x;
+						dragStartY = y;
 					}
+					wm.raiseWindow(w->window);
+					
+					// preposlani udalosti aplikaci - experimentalni
+					event.xbutton.x_root = wm.reverseConvertX(event.xbutton.x_root);
+					event.xbutton.y_root = wm.reverseConvertY(event.xbutton.y_root);
+					event.xbutton.x = event.xbutton.x_root - w->x;
+					event.xbutton.y = event.xbutton.y_root - w->y;
+					XSendEvent(wm.display, w->window, False, 0, &event);
+					
 				}else{ // nad plochou
 					if(event.type == ButtonPress && event.xbutton.button == Button4) // scroll nahoru
 					{
@@ -149,19 +160,22 @@ int main()
 			}
 			else if (event.type == MotionNotify)
 			{
+				int x = wm.reverseConvertX(event.xmotion.x_root);
+				int y = wm.reverseConvertY(event.xmotion.y_root);
+				
 				// presun okna
 				if(draggedWindow != NULL){
 					XWindowAttributes attr;
 					XGetWindowAttributes(wm.display, draggedWindow->window, &attr);
-					signed int xdiff = event.xmotion.x_root - dragStartX;
-					signed int ydiff = event.xmotion.y_root - dragStartY;
+					signed int xdiff = x - dragStartX;
+					signed int ydiff = y - dragStartY;
 					
 					dbg_e_motion << "presun okna " << draggedWindow->window << " z " << dragStartX << "," << dragStartY;
-					dbg_e_motion << " na " << draggedWindow->x+xdiff << "," << draggedWindow->y+ydiff << std::endl;
+					dbg_e_motion << " na " << attr.x+xdiff << "," << attr.y+ydiff << std::endl;
 					wm.moveResizeWindow(draggedWindow, attr.x+xdiff, attr.y+ydiff, attr.width, attr.height);
 					
-					dragStartX = event.xmotion.x_root;
-					dragStartY = event.xmotion.y_root;
+					dragStartX = x;
+					dragStartY = y;
 				}
 			}
 			else if (event.type == ReparentNotify)

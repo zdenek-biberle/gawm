@@ -240,16 +240,6 @@ void GawmWindowManager::moveResizeWindow(GawmWindow *window, int newX, int newY,
 	XMoveResizeWindow(display, window->window, newX, newY, newWidth, newHeight);
 }
 
-void GawmWindowManager::zoomIn()
-{
-	zoom += 0.03;
-}
-
-void GawmWindowManager::zoomOut()
-{
-	zoom -= 0.03;
-}
-
 void GawmWindowManager::initKnownWindows()
 {
 	Window root;
