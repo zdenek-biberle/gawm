@@ -61,23 +61,28 @@ run: $(program)
 runSmall: $(program)
 	xinit './$(program)' -- /usr/bin/Xephyr $(display) -screen 640x480 &
 
+runFull: $(program)
+	xinit './$(program)' -- /usr/bin/Xephyr $(display) -fullscreen -host-cursor &
+
 # Nespouštět, pokud neběží gawm!
 test_:
 	runner=$$(bash ./get_pid.sh './$(program)')
-	DISPLAY=$(display) xterm -geometry 68x29+0+0 &
-	DISPLAY=$(display) xterm -geometry 100x17+5+5 &
+	DISPLAY=$(display) xterm -geometry 68x29+30+30 &
+	DISPLAY=$(display) xterm -geometry 100x17+100+60 &
 
 test: run test_
 
 # Pro Bibu, kterej ma malej kompl
 testSmall: runSmall test_
 
+testFull: runFull test_
+
 # Test s více výpisy
 testDbg: debug
 	xinit './$(program)-dbg' -- /usr/bin/Xephyr $(display) -screen 640x480 $(CURSOR) &
 	runner=$$(bash ./get_pid.sh './$(program)-dbg')
-	DISPLAY=$(display) xterm -geometry 68x29+0+0 &
-	DISPLAY=$(display) xterm -geometry 100x17+5+5 &
+	DISPLAY=$(display) xterm -geometry 68x29+30+30 &
+	DISPLAY=$(display) xterm -geometry 100x17+100+60 &
 
 # Test když se nezobrazuje kurzor
 testCursor:
