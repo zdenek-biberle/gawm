@@ -59,14 +59,24 @@ public:
 
 	void moveDesktop(int xdiff, int ydiff);
 	
-	inline void zoomIn(){
+	inline void zoomIn(int x, int y){
+		
+		// celá plocha se posune o rozdíl staré a nové pozice kurzoru myši
+		moveDesktop(-(x * zoom_const - x), -(y * zoom_const - y));
+		
 		zoom *= zoom_const;
 		dbg_e_buttonPress << "zoom = " << zoom << std::endl;
+		
 	}
 	
-	inline void zoomOut(){
+	inline void zoomOut(int x, int y){
+		
+		// celá plocha se posune o rozdíl staré a nové pozice kurzoru myši
+		moveDesktop(-(x / zoom_const - x), -(y / zoom_const - y));
+		
 		zoom /= zoom_const;
 		dbg_e_buttonPress << "zoom = " << zoom << std::endl;
+		
 	}
 	
 	inline int reverseConvertX(int x){
