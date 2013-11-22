@@ -205,6 +205,25 @@ int main()
 					dragStartX = x;
 					dragStartY = y;
 				}
+				
+				// posun pri krajich - zatim jen primitivni
+				if(event.xmotion.x_root == 0){
+					wm.moveDesktop(5, 0);
+					dragStartX += 5;
+				}
+				if(event.xmotion.x_root == wm.maxX){
+					wm.moveDesktop(-5, 0);
+					dragStartX -= 5;
+				}
+				if(event.xmotion.y_root == 0){
+					wm.moveDesktop(0, 5);
+					dragStartY += 5;
+				}
+				if(event.xmotion.y_root == wm.maxY){
+					wm.moveDesktop(0, -5);
+					dragStartY -= 5;
+				}
+				
 			}
 			else if (event.type == ReparentNotify)
 			{

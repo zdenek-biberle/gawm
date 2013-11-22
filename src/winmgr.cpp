@@ -112,6 +112,9 @@ void GawmWindowManager::initWindow()
 
 	XGetWindowAttributes(display, overlayWindow, &overlayWindowAttribs);
 
+	maxX = overlayWindowAttribs.width - 1;
+	maxY = overlayWindowAttribs.height - 1;
+
 	window = XCreateWindow(
 		display, overlayWindow,
 		0, 0,
@@ -127,7 +130,6 @@ void GawmWindowManager::initWindow()
 
 	XStoreName(display, window, "OH GOD GAWM");
 	XMapWindow(display, window);
-
 }
 
 void GawmWindowManager::destroyWindow()

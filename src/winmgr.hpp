@@ -24,6 +24,8 @@ public:
 	XSetWindowAttributes windowAttribs;
 	XWindowAttributes overlayWindowAttribs;
 	GLXContext ctx;
+	int maxX;
+	int maxY;
 	
 	typedef boost::ptr_map<Window, GawmWindow> TKnownWindowsMap;
 	TKnownWindowsMap knownWindows;
@@ -61,20 +63,26 @@ public:
 	
 	inline void zoomIn(int x, int y){
 		
-		// celá plocha se posune o rozdíl staré a nové pozice kurzoru myši
-		moveDesktop(-(x * zoom_const - x), -(y * zoom_const - y));
+		if(zoom > 20.0) return; // maximalni priblizeni
 		
 		zoom *= zoom_const;
+		
+		// celá plocha se posune o rozdíl staré a nové pozice kurzoru myši
+		moveDesktop( x - x * zoom_const, y - y * zoom_const);
+		
 		dbg_e_buttonPress << "zoom = " << zoom << std::endl;
 		
 	}
 	
 	inline void zoomOut(int x, int y){
 		
-		// celá plocha se posune o rozdíl staré a nové pozice kurzoru myši
-		moveDesktop(-(x / zoom_const - x), -(y / zoom_const - y));
+		if(zoom < 0.03) return; // maximalni oddaleni
 		
 		zoom /= zoom_const;
+		
+		// celá plocha se posune o rozdíl staré a nové pozice kurzoru myši
+		moveDesktop( x - x / zoom_const, y - y / zoom_const);
+		
 		dbg_e_buttonPress << "zoom = " << zoom << std::endl;
 		
 	}
