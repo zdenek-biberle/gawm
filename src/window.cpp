@@ -7,6 +7,7 @@
 #include "debug.hpp"
 #include "window.hpp"
 #include "gawmGl.hpp"
+#include "utils.hpp"
 
 /*       _\|/_
          (o o)
@@ -34,10 +35,17 @@ GawmWindow::GawmWindow(Display *display, int screen, Window window, int x, int y
 GawmWindow::~GawmWindow()
 {
 	dbg_w_destroy << "DestroyNotify: Zniceno okno " << window << std::endl;
-	XDamageDestroy(display, damage);
+    destroyPixmap();
+	// XDamageDestroy(display, damage); // tohle asi nepotrebujeme, Xka to znici samy pri zniceni okna, asi
 }
 
-void GawmWindow::configure(int newX, int newY, int newWidth, int newHeight){
+void GawmWindow::configure(int newX, int newY, int newWidth, int newHeight)
+{
+    if (width != newWidth || height != newHeight)
+    {
+        hasPixmap = false;
+    }
+    
 	x = newX;
 	y = newY;
 	width = newWidth;
@@ -46,8 +54,6 @@ void GawmWindow::configure(int newX, int newY, int newWidth, int newHeight){
 	dbg_w_conf << "ConfigureNotify: Zmeneno okno " << window
 				<< " s pozici " << x << ", " << y << " a velikosti "
 				<< width << "x" << height << std::endl;
-
-	hasPixmap = false;
 }
 
 void GawmWindow::reloadPixmap(){
@@ -60,10 +66,12 @@ void GawmWindow::reloadPixmap(){
 		int nFbConfigs;
 		auto visualid = XVisualIDFromVisual(attribs.visual);
 		auto fbConfigs = glXGetFBConfigs(display, screen, &nFbConfigs); // FIXME: Způsobuje leaky!
+        UTILS_SCOPE_EXIT([&]{XFree(fbConfigs);});
 		int i;
 		for (i = 0; i < nFbConfigs; i++)
 		{
-			auto visinfo = glXGetVisualFromFBConfig(display, fbConfigs[i]); // FIXME: Způsobuje leaky!
+			auto visinfo = glXGetVisualFromFBConfig(display, fbConfigs[i]);
+            UTILS_SCOPE_EXIT([&]{XFree(visinfo);});
 			if (!visinfo || visinfo->visualid != visualid)
 				continue;
 
@@ -127,8 +135,6 @@ void GawmWindow::reloadPixmap(){
 }
 
 void GawmWindow::render(double zoom){
-	
-
 	if(isVisible())
 	{
 		glPushMatrix();
@@ -207,7 +213,7 @@ void GawmWindow::setVisible(bool visible)
 
 void GawmWindow::doDamage()
 {
-	hasPixmap = false;
+	destroyPixmap();
 }
 
 bool GawmWindow::containsPoint(int pX, int pY)
@@ -226,6 +232,16 @@ bool GawmWindow::closePoint(int pX, int pY)
 {	
 	return (x+width-closeWidth <= pX && pX <= x+width) &&
 	       (y-borderTop <= pY && pY < y-borderTop+closeHeight);
+}
+
+void GawmWindow::destroyPixmap()
+{
+    if (hasPixmap)
+    {
+        glXDestroyPixmap(display, glxPixmap);
+        glDeleteTextures(1, &glTexture);
+        hasPixmap = false;
+    }
 }
 
 /*       _\|/_

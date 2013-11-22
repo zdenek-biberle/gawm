@@ -156,6 +156,7 @@ void GawmWindowManager::initGL()
 void GawmWindowManager::destroyGL()
 {
 	glXDestroyContext(display, ctx);
+    displayGlErrors();
 }
 
 void GawmWindowManager::allowInputPassthrough()

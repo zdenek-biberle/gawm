@@ -11,5 +11,6 @@ extern PFNGLXBINDTEXIMAGEEXTPROC glXBindTexImageEXT;
 extern PFNGLXRELEASETEXIMAGEEXTPROC glXReleaseTexImageEXT;
 
 void initGlFunctions();
+void displayGlErrors();
 
 #endif

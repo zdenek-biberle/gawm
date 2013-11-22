@@ -59,6 +59,9 @@ public:
 	
 	void doDamage();
 	
+protected:
+    void destroyPixmap();
+    
 };
 
 const GLubyte* selectRandomColor();

@@ -219,6 +219,7 @@ int main()
 				auto& dne = *reinterpret_cast<XDamageNotifyEvent*>(&event);
 				XDamageSubtract(wm.display, dne.damage, None, None);
 				wm.knownWindows.at(dne.drawable).doDamage();
+                dbg_e_damage << "Damage na " << dne.area.x << "," << dne.area.y << " o velikosti " << dne.area.width << "x" << dne.area.height << std::endl;
 			}
 			else
 			{

@@ -21,5 +21,6 @@
 #define dbg_e_buttonPress dbg_out
 #define dbg_e_reparent dbg_out
 #define dbg_e_motion dbg_out
+#define dbg_e_damage dbg_out
 
 #endif // DEBUG_HPP

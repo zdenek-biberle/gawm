@@ -86,7 +86,7 @@ testCursor:
 valgrind: debug
 	/usr/bin/Xephyr $(display) & \
 	xephyr_p=$$!; \
-	DISPLAY=$(display) valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=definite,possible './$(program)-dbg'; \
+	DISPLAY=$(display) valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=definite './$(program)-dbg'; \
 	kill $$xephyr_p;
 
 valgrind_reachable: debug
