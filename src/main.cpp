@@ -109,10 +109,6 @@ int main()
 					}else{
 						dbg_e_keyPress << "okno " << w->window << std::endl;
 					}
-					
-					if(w != NULL){
-						XSendEvent(wm.display, w->window, False, 0, &event);
-					}
 				}
 			}
 			else if (event.type == ButtonPress || event.type == ButtonRelease)
@@ -147,6 +143,7 @@ int main()
 					// preneseni okna do popredi
 					if(event.type == ButtonPress && (event.xbutton.button == Button1 || event.xbutton.button == Button2 || event.xbutton.button == Button3)){
 						wm.raiseWindow(w->window);
+						XSetInputFocus(wm.display, w->window, RevertToPointerRoot, CurrentTime);
 					}
 					
 					// preposlani udalosti aplikaci - experimentalni

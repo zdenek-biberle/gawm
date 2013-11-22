@@ -4,15 +4,17 @@
 #include <iostream>
 
 #define cerr_line std::cerr<<__FILE__<<"("<<__LINE__<< "): "
+#define DBG_MUTE if (false) std::cerr
 
 #ifdef DEBUG
 #define dbg_out std::cerr
 #define dbg_out_line cerr_line
 #else
-#define dbg_out if (false) std::cerr
+#define dbg_out DBG_MUTE
 #define dbg_out_line dbg_out
 #endif // DEBUG
 
+// Pro umlčení určitého typu DEBUG hlášek nahraďte "dbg_out" za "DBG_MUTE".
 #define dbg_w_create dbg_out
 #define dbg_w_destroy dbg_out
 #define dbg_w_pixmap dbg_out
