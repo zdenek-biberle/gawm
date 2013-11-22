@@ -143,7 +143,11 @@ int main()
 						dragStartX = x;
 						dragStartY = y;
 					}
-					wm.raiseWindow(w->window);
+					
+					// preneseni okna do popredi
+					if(event.type == ButtonPress && (event.xbutton.button == Button1 || event.xbutton.button == Button2 || event.xbutton.button == Button3)){
+						wm.raiseWindow(w->window);
+					}
 					
 					// preposlani udalosti aplikaci - experimentalni
 					event.xbutton.x_root = wm.reverseConvertX(event.xbutton.x_root);
