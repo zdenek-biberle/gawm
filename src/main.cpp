@@ -166,17 +166,13 @@ int main()
 					}
 					if(event.type == ButtonPress && event.xbutton.button == Button4) // scroll nahoru
 					{
-						// celá plocha se posune o rozdíl staré a nové pozice kurzoru myši
-						wm.moveDesktop(-(x * wm.zoom_const - x), -(y * wm.zoom_const - y));
 						dbg_e_buttonPress << "prizoomovani" << std::endl;
-						wm.zoomIn();
+						wm.zoomIn(x, y);
 					}
 					if(event.type == ButtonPress && event.xbutton.button == Button5) // scroll dolu
 					{
-						// celá plocha se posune o rozdíl staré a nové pozice kurzoru myši
-						wm.moveDesktop(-(x / wm.zoom_const - x), -(y / wm.zoom_const - y));
 						dbg_e_buttonPress << "odzoomovani" << std::endl;
-						wm.zoomOut();
+						wm.zoomOut(x, y);
 					}
 				}
 				
