@@ -19,7 +19,7 @@ public:
 	int screen;
 	Window rootWindow;
 	Window overlayWindow;
-	Window window;
+	Window outputWindow;
 	GLXFBConfig fbConfig;
 	XSetWindowAttributes windowAttribs;
 	XWindowAttributes overlayWindowAttribs;
@@ -107,7 +107,7 @@ private:
 	
 	void destroyGL();
 	
-	void allowInputPassthrough();
+	void allowInputPassthrough(Window window);
 	
 	void initKnownWindows();
 	

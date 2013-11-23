@@ -22,11 +22,9 @@ int main()
 	
 	// Odchytavani klaves pro Window manager
 	KeyCode Escape = XKeysymToKeycode(wm.display, XStringToKeysym("Escape"));
-	XGrabKey(wm.display, Escape, Mod4Mask, wm.window, True, GrabModeSync, GrabModeSync); // Mod4Mask / AnyModifier
-	XGrabButton(wm.display, Button1, AnyModifier, wm.window, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
-	const unsigned int event_mask = ButtonPressMask | ButtonReleaseMask | PointerMotionMask | FocusChangeMask | EnterWindowMask | LeaveWindowMask;
-	XGrabPointer(wm.display, wm.overlayWindow, True, event_mask, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
-	XSelectInput(wm.display, wm.window, ButtonPressMask + KeyPressMask);
+	//XGrabKey(wm.display, Escape, Mod4Mask, wm.rootWindow, True, GrabModeAsync, GrabModeAsync); 
+	//~ XGrabButton(wm.display, Button1, AnyModifier, wm.window, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
+	XSelectInput(wm.display, wm.rootWindow, KeyPressMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | SubstructureNotifyMask);
 	
 	int damage_event, damage_error; // The event base is important here
 	XDamageQueryExtension(wm.display, &damage_event, &damage_error);
@@ -92,26 +90,8 @@ int main()
 					dbg_out << "Stisknuto Win+Esc = Escape from window manager" << std::endl;
 					run = false;
 				}
-				else
-				{
-					// klavesy ktere nezajimaji WM jsou zaslany aktivnimu (nejvyssimu) oknu
-					GawmWindow *w = wm.getHighestWindow();
-
-					int keysyms_per_keycode_return;
-					KeySym *keysym = XGetKeyboardMapping(wm.display, event.xkey.keycode, 1, &keysyms_per_keycode_return);
-					if (keysyms_per_keycode_return) {
-						dbg_e_keyPress << "Klavesa " << XKeysymToString( keysym[0] ) << " ";
-					}
-					XFree(keysym);
-					
-					if(w == NULL){
-						dbg_e_keyPress << "plocha" << std::endl;
-					}else{
-						dbg_e_keyPress << "okno " << w->window << std::endl;
-					}
-				}
 			}
-			else if (event.type == ButtonPress || event.type == ButtonRelease)
+			else if (event.type == ButtonPress)
 			{
 				int x = wm.reverseConvertX(event.xbutton.x_root);
 				int y = wm.reverseConvertY(event.xbutton.y_root);
@@ -125,35 +105,9 @@ int main()
 					dbg_e_buttonPress << "okno " << w->window << std::endl;
 				}
 				
-				if(w != NULL && !(event.xbutton.state&Mod4Mask)){ // prace v okne, pokud je nad oknem a zaroven neni stisknuto Win
-					
-					// zavreni okna, bylo-li kliknuto na zaviraci tlacitko
-					if(event.type == ButtonPress && w->closePoint(x, y)){
-						dbg_e_buttonPress << "zavirani okna " << w->window << std::endl;
-					}
-					
-					// zahajeni pretahovani okna, bylo-li kliknuto na dekoraci nebo s Alt
-					if(event.type == ButtonPress && (w->handlePoint(x, y) || (event.xbutton.state&Mod1Mask))){
-						dbg_e_buttonPress << "zahajeno pretahovani okna " << w->window << std::endl;
-						draggedWindow = w;
-						dragStartX = x;
-						dragStartY = y;
-					}
-					
-					// preneseni okna do popredi
-					if(event.type == ButtonPress && (event.xbutton.button == Button1 || event.xbutton.button == Button2 || event.xbutton.button == Button3)){
-						wm.raiseWindow(w->window);
-						XSetInputFocus(wm.display, w->window, RevertToPointerRoot, CurrentTime);
-					}
-					
-					// preposlani udalosti aplikaci - experimentalni
-					event.xbutton.x_root = wm.reverseConvertX(event.xbutton.x_root);
-					event.xbutton.y_root = wm.reverseConvertY(event.xbutton.y_root);
-					event.xbutton.x = event.xbutton.x_root - w->x;
-					event.xbutton.y = event.xbutton.y_root - w->y;
-					XSendEvent(wm.display, w->window, False, 0, &event);
-					
-				}else{ // neni-li nad oknem, nebo je stisknuto Win, prace nad plochou
+				if (event.xbutton.state & Mod4Mask)
+				{ 
+					// neni-li nad oknem, nebo je stisknuto Win, prace nad plochou
 					if(event.type == ButtonPress && event.xbutton.button == Button1) // zahajeni posunu plochy
 					{
 						dbg_e_buttonPress << "posun plochy" << std::endl;
@@ -172,10 +126,36 @@ int main()
 						wm.zoomOut(x, y);
 					}
 				}
-				
-				if(event.type == ButtonRelease){
-					draggedWindow = NULL;
+				else if (w != nullptr)
+				{ 
+					// prace v okne, pokud je nad oknem a zaroven neni stisknuto Win
+					
+					// zavreni okna, bylo-li kliknuto na zaviraci tlacitko
+					if(event.type == ButtonPress && w->closePoint(x, y)){
+						dbg_e_buttonPress << "zavirani okna " << w->window << std::endl;
+					}
+					
+					// zahajeni pretahovani okna, bylo-li kliknuto na dekoraci nebo s Alt
+					if(event.type == ButtonPress && (w->handlePoint(x, y) || (event.xbutton.state & Mod1Mask))){
+						dbg_e_buttonPress << "zahajeno pretahovani okna " << w->window << std::endl;
+						draggedWindow = w;
+						dragStartX = x;
+						dragStartY = y;
+						const unsigned int event_mask = ButtonPressMask | ButtonReleaseMask | PointerMotionMask | FocusChangeMask | EnterWindowMask | LeaveWindowMask;
+						XGrabPointer(wm.display, wm.overlayWindow, True, event_mask, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
+					}
+					
+					// preneseni okna do popredi
+					if(event.type == ButtonPress && (event.xbutton.button == Button1 || event.xbutton.button == Button2 || event.xbutton.button == Button3)){
+						wm.raiseWindow(w->window);
+						XSetInputFocus(wm.display, w->window, RevertToPointerRoot, CurrentTime);
+					}
 				}
+			}
+			else if (event.type == ButtonRelease)
+			{
+				draggedWindow = NULL;
+				XUngrabPointer(wm.display, CurrentTime);
 			}
 			else if (event.type == MotionNotify)
 			{

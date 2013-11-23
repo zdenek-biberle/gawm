@@ -55,14 +55,14 @@ strict:
 
 # Spustí testy
 run: $(program)
-	xinit './$(program)' -- /usr/bin/Xephyr $(display) -screen 800x600 &
+	xinit './$(program)' -- /usr/bin/Xephyr $(display) -host-cursor -screen 800x600 &
 
 # Pro Bibu, kterej ma malej kompl
 runSmall: $(program)
-	xinit './$(program)' -- /usr/bin/Xephyr $(display) -screen 640x480 &
+	xinit './$(program)' -- /usr/bin/Xephyr $(display) -host-cursor -screen 640x480 &
 
 runFull: $(program)
-	xinit './$(program)' -- /usr/bin/Xephyr $(display) -fullscreen -host-cursor &
+	xinit './$(program)' -- /usr/bin/Xephyr $(display) -host-cursor -fullscreen -host-cursor &
 
 # Nespouštět, pokud neběží gawm!
 test_:

@@ -34,13 +34,13 @@ GawmWindowManager::GawmWindowManager()
 	XCompositeRedirectSubwindows(display, rootWindow, CompositeRedirectManual);
 	initFbConfig();
 	initWindow();
-	XSelectInput(display, rootWindow, SubstructureNotifyMask);
 	initKnownWindows();
 	initGL();
-	allowInputPassthrough();
+    allowInputPassthrough(overlayWindow);
+	allowInputPassthrough(outputWindow);
 	
 	dbg_out << "GawmWindowManager: Screen: " << screen << ", rootWindow: " << rootWindow << ", overlayWindow: " << overlayWindow
-			<< ", GL window: " << window << std::endl;
+			<< ", GL window: " << outputWindow << std::endl;
 }
 
 GawmWindowManager::~GawmWindowManager()
@@ -69,7 +69,7 @@ void GawmWindowManager::render()
 		cerr_line << "GL error: " << err << std::endl;
 	}
 	
-	glXSwapBuffers(display, window);
+	glXSwapBuffers(display, outputWindow);
 }
 
 void GawmWindowManager::initFbConfig()
@@ -115,27 +115,27 @@ void GawmWindowManager::initWindow()
 	maxX = overlayWindowAttribs.width - 1;
 	maxY = overlayWindowAttribs.height - 1;
 
-	window = XCreateWindow(
+	outputWindow = XCreateWindow(
 		display, overlayWindow,
 		0, 0,
 		overlayWindowAttribs.width, overlayWindowAttribs.height,
 		0, visualInfo->depth, InputOutput, visualInfo->visual,
 		CWBorderPixel | CWColormap, &windowAttribs);
-	if (!window)
+	if (!outputWindow)
 	{
 		throw std::runtime_error("Nelze vytvorit okno. Bug?");
 	}
 
 	XFree(visualInfo);
 
-	XStoreName(display, window, "OH GOD GAWM");
-	XMapWindow(display, window);
+	XStoreName(display, outputWindow, "OH GOD GAWM");
+	XMapWindow(display, outputWindow);
 }
 
 void GawmWindowManager::destroyWindow()
 {
 	XFreeColormap(display, windowAttribs.colormap);
-	XDestroyWindow(display, window);
+	XDestroyWindow(display, outputWindow);
 }
 
 void GawmWindowManager::initGL()
@@ -147,7 +147,7 @@ void GawmWindowManager::initGL()
 	{
 		throw std::runtime_error("Nepodarilo se vytvorit OpenGL kontext!");
 	}
-	glXMakeCurrent(display, window, ctx);
+	glXMakeCurrent(display, outputWindow, ctx);
 	initGlFunctions();
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -161,13 +161,13 @@ void GawmWindowManager::destroyGL()
     displayGlErrors();
 }
 
-void GawmWindowManager::allowInputPassthrough()
+void GawmWindowManager::allowInputPassthrough(Window window)
 {
 	XserverRegion region = XFixesCreateRegion(display, NULL, 0);
 	XFixesSetWindowShapeRegion(display, window, ShapeBounding, 0, 0, 0);
-	//XFixesSetWindowShapeRegion(display, window, ShapeInput, 0, 0, region); // FIXME: Pokud je toto odkomentováno, přestanou se odchytávat klávesy.
+	XFixesSetWindowShapeRegion(display, window, ShapeInput, 0, 0, region); // FIXME: Pokud je toto odkomentováno, přestanou se odchytávat klávesy.
 	XFixesDestroyRegion(display, region);
-	
+    
 	// experiment2
 	//XGrabPointer(display, overlayWindow, True /*owner_events - proverit*/, 0/*event_mask*/, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
 	//XGrabButton(display, AnyButton, AnyModifier, overlayWindow, True /*owner_events - proverit*/, 0/*event_mask*/, GrabModeAsync, GrabModeAsync, None, None);
