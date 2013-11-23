@@ -36,10 +36,10 @@ int main()
 	
 	while (run)
 	{
-		wm.render();
-		
 		XEvent event;
 		XPeekEvent(wm.display, &event);
+		XGrabServer(wm.display);
+		
 		while(XPending(wm.display))
 		{
 			XNextEvent(wm.display, &event);
@@ -142,7 +142,7 @@ int main()
 						dragStartX = x;
 						dragStartY = y;
 						const unsigned int event_mask = ButtonPressMask | ButtonReleaseMask | PointerMotionMask | FocusChangeMask | EnterWindowMask | LeaveWindowMask;
-						XGrabPointer(wm.display, wm.overlayWindow, True, event_mask, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
+						XGrabPointer(wm.display, wm.rootWindow, True, event_mask, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
 					}
 					
 					// preneseni okna do popredi
@@ -222,6 +222,10 @@ int main()
 				cerr_line << "Dosel mi typ " << event.type << "; nevim, co s tim..." << std::endl;
 			}
 		}
+		
+		wm.render();
+		
+		XUngrabServer(wm.display);
 	}
 
 	return 0;
