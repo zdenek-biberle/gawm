@@ -22,9 +22,9 @@ int main()
 	
 	// Odchytavani klaves pro Window manager
 	KeyCode Escape = XKeysymToKeycode(wm.display, XStringToKeysym("Escape"));
-	//XGrabKey(wm.display, Escape, Mod4Mask, wm.rootWindow, True, GrabModeAsync, GrabModeAsync); 
-	//~ XGrabButton(wm.display, Button1, AnyModifier, wm.window, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
-	XSelectInput(wm.display, wm.rootWindow, KeyPressMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | SubstructureNotifyMask);
+	XGrabKey(wm.display, Escape, AnyModifier, wm.rootWindow, True, GrabModeAsync, GrabModeAsync); 
+	XGrabButton(wm.display, AnyButton, AnyModifier, wm.rootWindow, True, ButtonPressMask | ButtonReleaseMask, GrabModeAsync, GrabModeAsync, None, None);
+	XSelectInput(wm.display, wm.rootWindow, SubstructureNotifyMask | PointerMotionMask);
 	
 	int damage_event, damage_error; // The event base is important here
 	XDamageQueryExtension(wm.display, &damage_event, &damage_error);
