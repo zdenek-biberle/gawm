@@ -23,9 +23,15 @@ int main()
 	// Odchytavani klaves pro Window manager
 	KeyCode Escape = XKeysymToKeycode(wm.display, XStringToKeysym("Escape"));
 	XGrabKey(wm.display, Escape, AnyModifier, wm.rootWindow, True, GrabModeAsync, GrabModeAsync); 
-	XGrabButton(wm.display, Button1, Mod4Mask, wm.rootWindow, True, ButtonPressMask | ButtonReleaseMask, GrabModeAsync, GrabModeAsync, None, None);
-	XGrabButton(wm.display, Button4, Mod4Mask, wm.rootWindow, True, ButtonPressMask | ButtonReleaseMask, GrabModeAsync, GrabModeAsync, None, None);
-	XGrabButton(wm.display, Button5, Mod4Mask, wm.rootWindow, True, ButtonPressMask | ButtonReleaseMask, GrabModeAsync, GrabModeAsync, None, None);
+	
+	int buttony[] = {Button1, Mod4Mask, Button4, Mod4Mask, Button5, Mod4Mask, Button1, Mod1Mask};
+	for (int i = 0; i < sizeof(buttony)/sizeof(int)/2; i++)
+	{
+		int button = buttony[i*2];
+		int mask = buttony[i*2 + 1];
+		XGrabButton(wm.display, button, mask, wm.rootWindow, True, ButtonPressMask | ButtonReleaseMask, GrabModeAsync, GrabModeAsync, None, None);
+		XGrabButton(wm.display, button, mask | LockMask, wm.rootWindow, True, ButtonPressMask | ButtonReleaseMask, GrabModeAsync, GrabModeAsync, None, None);
+	}
 	XSelectInput(wm.display, wm.rootWindow, SubstructureNotifyMask | PointerMotionMask | ButtonPressMask | ButtonReleaseMask);
 	
 	int damage_event, damage_error; // The event base is important here
