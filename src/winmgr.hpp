@@ -34,8 +34,8 @@ public:
 	typedef std::list<GawmWindow*> TSortedWindows;
 	TSortedWindows sortedWindows;
 	
+	int zoomLevel = 3;
 	double zoom = 1.0;
-	static constexpr double zoom_const = 1.03;
 	
 	GawmWindowManager();
 	~GawmWindowManager();
@@ -62,31 +62,11 @@ public:
 
 	void moveDesktop(int xdiff, int ydiff);
 	
-	inline void zoomIn(int x, int y){
-		
-		if(zoom > 20.0) return; // maximalni priblizeni
-		
-		zoom *= zoom_const;
-		
-		// celá plocha se posune o rozdíl staré a nové pozice kurzoru myši
-		moveDesktop( x - x * zoom_const, y - y * zoom_const);
-		
-		dbg_e_buttonPress << "zoom = " << zoom << std::endl;
-		
-	}
+	void zoomIn(int x, int y);
 	
-	inline void zoomOut(int x, int y){
-		
-		if(zoom < 0.03) return; // maximalni oddaleni
-		
-		zoom /= zoom_const;
-		
-		// celá plocha se posune o rozdíl staré a nové pozice kurzoru myši
-		moveDesktop( x - x / zoom_const, y - y / zoom_const);
-		
-		dbg_e_buttonPress << "zoom = " << zoom << std::endl;
-		
-	}
+	void zoomOut(int x, int y);
+	
+	void zoomTo(int level, int x, int y);
 	
 	inline int reverseConvertX(int x){
 		return x/zoom;

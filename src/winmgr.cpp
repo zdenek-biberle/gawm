@@ -363,3 +363,40 @@ void GawmWindowManager::initKnownWindows()
 
 	XFree(children);
 }
+
+void GawmWindowManager::zoomIn(int x, int y)
+{
+	zoomTo(zoomLevel + 1, x, y);
+}
+
+void GawmWindowManager::zoomOut(int x, int y)
+{
+	zoomTo(zoomLevel - 1, x, y);
+}
+
+void GawmWindowManager::zoomTo(int level, int x, int y)
+{
+	static double zoomLevels[] = {0.125, 0.25, 0.5, 1.0, 2.0};
+	static int maxZoomLevel = 4;
+	static int minZoomLevel = 0;
+	
+	zoomLevel = level;
+	auto prevZoom = zoom;
+	if (zoomLevel > maxZoomLevel)
+	{
+		zoomLevel = maxZoomLevel;
+	}
+	else if (zoomLevel < minZoomLevel)
+	{
+		zoomLevel = minZoomLevel;
+	}
+	
+	zoom = zoomLevels[zoomLevel];
+	if (zoom == prevZoom) return;
+	auto zoomMultiplier = zoom / prevZoom; 
+	
+	// celá plocha se posune o rozdíl staré a nové pozice kurzoru myši
+	moveDesktop( x / zoomMultiplier - x, y / zoomMultiplier - y);
+	
+	dbg_e_buttonPress << "zoom = " << zoom << std::endl;
+}
