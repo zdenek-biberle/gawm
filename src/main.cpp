@@ -126,6 +126,17 @@ int main()
 					// zavreni okna, bylo-li kliknuto na zaviraci tlacitko
 					if(event.type == ButtonPress && w->closePoint(x, y)){
 						dbg_e_buttonPress << "zavirani okna " << w->window << std::endl;
+						
+						XEvent ev;
+						memset(&ev, 0, sizeof (ev));
+						ev.xclient.type = ClientMessage;
+						ev.xclient.window = w->window;
+						ev.xclient.message_type = XInternAtom(wm.display, "WM_PROTOCOLS", true);
+						ev.xclient.format = 32;
+						ev.xclient.data.l[0] = XInternAtom(wm.display, "WM_DELETE_WINDOW", false);
+						ev.xclient.data.l[1] = CurrentTime;
+						XSendEvent(wm.display, w->window, False, NoEventMask, &ev);
+						
 					}
 					
 					// zahajeni pretahovani okna, bylo-li kliknuto na dekoraci nebo s Alt

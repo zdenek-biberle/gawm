@@ -15,7 +15,7 @@ int xerrorhandler(Display *dsp, XErrorEvent *error)
 	XGetErrorText(dsp, error->error_code, errorstring, 128);
  
 	cerr_line << "Xka umrely: " << errorstring << std::endl;
-	throw std::runtime_error("Xka umrely");
+	//throw std::runtime_error("Xka umrely");
 	
 	return False;
 }
