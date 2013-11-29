@@ -142,19 +142,43 @@ void GawmWindow::render(double zoom){
 		
 		reloadPixmap();
 		
+		// barvy
+		GLubyte colorBorder[] = {0,0,0};
+		GLubyte colorClose[] = {250,100,100};
+		GLubyte colorCloseBorder[] = {0,0,0};
+		GLubyte colorDecoration[] = {150,150,150};
+		GLubyte colorBackground[] = {255,255,255};
+		
+		// okraje dekorace
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glBegin(GL_QUADS); // FIXME: Způsobuje leaky!
+		glColor3ubv(colorBorder);
+		glVertex2i(x-borderLeft-1, y-borderTop-1);
+		glVertex2i(x-borderLeft-1, y+height+borderBottom+1);
+		glVertex2i(x+width+borderRight+2, y+height+borderBottom+1);
+		glVertex2i(x+width+borderRight+2, y-borderTop-1);
+		glEnd();
+		
 		// pozadi dekorace
 		glBindTexture(GL_TEXTURE_2D, 0);
-		GLubyte color[] = {150,150,150};
 		glBegin(GL_QUADS); // FIXME: Způsobuje leaky!
-		glColor3ubv(color);
+		glColor3ubv(colorDecoration);
 		glVertex2i(x-borderLeft, y-borderTop);
 		glVertex2i(x-borderLeft, y+height+borderBottom);
-		glVertex2i(x+width+borderRight, y+height+borderBottom);
-		glVertex2i(x+width+borderRight, y-borderTop);
+		glVertex2i(x+width+borderRight+1, y+height+borderBottom);
+		glVertex2i(x+width+borderRight+1, y-borderTop);
+		glEnd();
+		
+		// okraje zaviraciho tlacitka
+		glBegin(GL_QUADS); // FIXME: Způsobuje leaky!
+		glColor3ubv(colorCloseBorder);
+		glVertex2i(x+width-closeWidth-1, y-borderTop-1);
+		glVertex2i(x+width+1, y-borderTop-1);
+		glVertex2i(x+width+1, y-borderTop+closeHeight+1);
+		glVertex2i(x+width-closeWidth-1, y-borderTop+closeHeight+1);
 		glEnd();
 		
 		// zaviraci tlacitko
-		GLubyte colorClose[] = {250,100,100};
 		glBegin(GL_QUADS); // FIXME: Způsobuje leaky!
 		glColor3ubv(colorClose);
 		glVertex2i(x+width-closeWidth, y-borderTop);
@@ -163,29 +187,14 @@ void GawmWindow::render(double zoom){
 		glVertex2i(x+width-closeWidth, y-borderTop+closeHeight);
 		glEnd();
 		
-		// okraje dekorace
-		GLubyte color2[] = {0,0,0};
-		glBegin(GL_LINES);
-		glColor3ubv(color2);
-		glVertex2i(x-borderLeft, y-borderTop);
-		glVertex2i(x-borderLeft, y+height+borderBottom);
-		glVertex2i(x-borderLeft, y+height+borderBottom);
-		glVertex2i(x+width+borderRight, y+height+borderBottom);
-		glVertex2i(x+width+borderRight, y+height+borderBottom);
-		glVertex2i(x+width+borderRight, y-borderTop);
-		glVertex2i(x+width+borderRight, y-borderTop);
-		glVertex2i(x-borderLeft, y-borderTop);
-		glEnd();
-		
 		// obsah okna
 		glBindTexture(GL_TEXTURE_2D, glTexture);
 		glXBindTexImageEXT(display, glxPixmap, GLX_FRONT_LEFT_EXT, nullptr); // FIXME: Způsobuje leaky!
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		
-		GLubyte color3[] = {255,255,255};
 		glBegin(GL_QUADS); // FIXME: Způsobuje leaky!
-		glColor3ubv(color3);
+		glColor3ubv(colorBackground);
 		glTexCoord2f(0.0f, 0.0f);
 		glVertex2i(x, y);
 		glTexCoord2f(0.0f, 1.0f);
