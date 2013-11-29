@@ -23,8 +23,8 @@ int main()
 	// Odchytavani klaves pro Window manager
 	KeyCode Escape = XKeysymToKeycode(wm.display, XStringToKeysym("Escape"));
 	XGrabKey(wm.display, Escape, AnyModifier, wm.rootWindow, True, GrabModeAsync, GrabModeAsync); 
-	XGrabButton(wm.display, AnyButton, AnyModifier, wm.rootWindow, True, ButtonPressMask | ButtonReleaseMask, GrabModeAsync, GrabModeAsync, None, None);
-	XSelectInput(wm.display, wm.rootWindow, SubstructureNotifyMask | PointerMotionMask);
+	XGrabButton(wm.display, Button1, AnyModifier, wm.rootWindow, True, ButtonPressMask | ButtonReleaseMask, GrabModeAsync, GrabModeAsync, None, None);
+	XSelectInput(wm.display, wm.rootWindow, SubstructureNotifyMask | PointerMotionMask | ButtonPressMask | ButtonReleaseMask);
 	
 	int damage_event, damage_error; // The event base is important here
 	XDamageQueryExtension(wm.display, &damage_event, &damage_error);
@@ -46,10 +46,7 @@ int main()
 			if (event.type == CreateNotify)
 			{
 				XCreateWindowEvent& cwe = event.xcreatewindow;
-				
 				wm.insertWindow(cwe.window, cwe.x, cwe.y, cwe.width, cwe.height);
-				
-				//XLowerWindow(wm.display, wm.overlayWindow); // experiment
 			}
 			else if (event.type == DestroyNotify)
 			{
@@ -114,6 +111,8 @@ int main()
 						draggedWindow = (GawmWindow*) &wm; // pretahovanym oknem je window manager
 						dragStartX = x;
 						dragStartY = y;
+						const unsigned int eventMask = ButtonPressMask | ButtonReleaseMask | PointerMotionMask | FocusChangeMask | EnterWindowMask;
+						XGrabPointer(wm.display, wm.rootWindow, True, eventMask, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
 					}
 					if(event.type == ButtonPress && event.xbutton.button == Button4) // scroll nahoru
 					{
@@ -141,8 +140,8 @@ int main()
 						draggedWindow = w;
 						dragStartX = x;
 						dragStartY = y;
-						const unsigned int event_mask = ButtonPressMask | ButtonReleaseMask | PointerMotionMask | FocusChangeMask | EnterWindowMask | LeaveWindowMask;
-						XGrabPointer(wm.display, wm.rootWindow, True, event_mask, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
+						const unsigned int eventMask = ButtonPressMask | ButtonReleaseMask | PointerMotionMask | FocusChangeMask | EnterWindowMask;
+						XGrabPointer(wm.display, wm.rootWindow, True, eventMask, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
 					}
 					
 					// preneseni okna do popredi
