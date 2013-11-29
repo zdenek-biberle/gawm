@@ -3,9 +3,11 @@
 #include <X11/extensions/Xfixes.h>
 #include <X11/extensions/Xdamage.h>
 #include <X11/extensions/Xcomposite.h>
+#include <X11/XKBlib.h>
 
 #include "debug.hpp"
 #include "winmgr.hpp"
+#include "utils.hpp"
 
 int xerrorhandler(Display *dsp, XErrorEvent *error)
 {
@@ -14,6 +16,8 @@ int xerrorhandler(Display *dsp, XErrorEvent *error)
  
 	cerr_line << "Xka umrely: " << errorstring << std::endl;
 	throw std::runtime_error("Xka umrely");
+	
+	return False;
 }
 
 GawmWindowManager::GawmWindowManager()
@@ -32,6 +36,7 @@ GawmWindowManager::GawmWindowManager()
 	overlayWindow = XCompositeGetOverlayWindow(display, rootWindow);
 	
 	XCompositeRedirectSubwindows(display, rootWindow, CompositeRedirectManual);
+	setupEvents();
 	initFbConfig();
 	initWindow();
 	initKnownWindows();
@@ -72,9 +77,62 @@ void GawmWindowManager::render()
 	glXSwapBuffers(display, outputWindow);
 }
 
+void GawmWindowManager::setupEvents()
+{
+	int modlist[] = {ShiftMask, LockMask, ControlMask, Mod1Mask, Mod2Mask, Mod3Mask, Mod4Mask, Mod5Mask};
+	int scrolllock = 0;
+	int numlock = 0;
+	auto modmap = XGetModifierMapping(display);
+	UTILS_SCOPE_EXIT([&]{XFreeModifiermap(modmap);});
+
+	// Najdeme modifikatory scrolllock a numlock 
+	// Prakticky zkopirovano z Fluxboxu
+	for (int i=0, realkey=0; i<8; ++i)
+	{
+		for (int key=0; key < modmap->max_keypermod; ++key, ++realkey)
+		{
+			if (modmap->modifiermap[realkey] == 0)
+			{
+				continue;
+			}    
+
+			KeySym ks = XkbKeycodeToKeysym(display, modmap->modifiermap[realkey], 0, 0);
+
+			switch (ks) 
+			{
+				case XK_Scroll_Lock:
+					scrolllock = modlist[i];
+					break;
+				case XK_Num_Lock:
+					numlock = modlist[i];
+					break;
+			}
+		}
+	}
+	
+	// Odchytavani klaves pro Window manager
+	escapeKey = XKeysymToKeycode(display, XStringToKeysym("Escape"));
+	XGrabKey(display, escapeKey, AnyModifier, rootWindow, True, GrabModeAsync, GrabModeAsync); 
+	
+	std::cout << "numlock: " << numlock << ", scrolllock: " << scrolllock << std::endl;
+	
+	int buttony[] = {Button1, Mod4Mask, Button4, Mod4Mask, Button5, Mod4Mask, Button1, Mod1Mask};
+	for (unsigned i = 0; i < sizeof(buttony)/sizeof(int)/2; i++)
+	{
+		int button = buttony[i*2];
+		int mask = buttony[i*2 + 1];
+		for (int j = 0; j < 8; j++)
+		{
+			XGrabButton(display, button, 
+			mask | ((j & 1) ? LockMask : 0) | ((j & 2) ? numlock : 0) | ((j & 4) ? scrolllock : 0), 
+			rootWindow, True, ButtonPressMask | ButtonReleaseMask, GrabModeAsync, GrabModeAsync, None, None);
+		}
+	}
+	XSelectInput(display, rootWindow, SubstructureNotifyMask | PointerMotionMask | ButtonPressMask | ButtonReleaseMask);
+}
+
 void GawmWindowManager::initFbConfig()
 {
-
 	int glDisplayAttribs[] =
 	{
 		GLX_DRAWABLE_TYPE,	GLX_WINDOW_BIT,

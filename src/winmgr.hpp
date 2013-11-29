@@ -26,6 +26,7 @@ public:
 	GLXContext ctx;
 	int maxX;
 	int maxY;
+	KeyCode escapeKey;
 	
 	typedef boost::ptr_map<Window, GawmWindow> TKnownWindowsMap;
 	TKnownWindowsMap knownWindows;
@@ -96,6 +97,7 @@ public:
 	}
 	
 private:
+	void setupEvents();
 	
 	void initFbConfig();
 	
@@ -110,7 +112,6 @@ private:
 	void allowInputPassthrough(Window window);
 	
 	void initKnownWindows();
-	
 };
 
 #endif
