@@ -51,6 +51,19 @@
 \section{Úvod} \label{uvod}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+V této práci je řešena implementace a testování inovativního správce oken ``gawm''.
+Jedná se o kompozitní správce oken pro grafické prostředí X, který umožňuje pracovat s okny v nekonečně velkém prostoru, po kterém se uživatel může pohybovat ve stylu CADových systémů a strategických her.
+
+Cílem je přinést inovativní způsob práce s okny, umožňující pracovat s velkým množstvím oken bez potřeby abstraktní představy minimalizace nebo virtuálních ploch.
+
+Jako každý správce oken umožňuje okna přesouvat, jejich minimalizaci se ale snaží nahradit konceptem virtuálních ploch, který je ale zbaven striktního rozdělení prostoru oken na jednotlivé virtuální plochy - okna leží na nekonečné ploše, jejíž výřez se uživateli zobrazuje a v kterém se může volně pohybovat a zoomovat pro dosažení maximální orientace v oknech.
+
+Přebourává tak koncept virtuálních ploch podobným způsobem jakým aplikace 280slides.com přebourává koncept slidů prezentace.
+Uživatel se po ploše pohybuje ve stylu CAD systémů, tažením myší po volné ploše, nebo ve stylu Real time strategy, umístěním kurzoru myši na hranu obrazovky.
+
+Přidanou hodnotou aplikace může být možnost pracovat i se zmenšenými okny na odzoomované ploše.
+Na rozdíl od náhledů aplikací známých například z Gnome Shell tak umožňuje s aplikacemi pracovat aniž by bylo nutné opustit režim náhledů (který je zde právě nahrazen prostým odzoomováním) a vyřešit tak i problémy s obtížným drag-and-drop mezi aplikacemi na různých virtuálních plochách.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Implementace}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -62,6 +75,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Testování}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Popsaný správce oken má za cíl přinést styl práce z průmyslem prověřených CADových aplikací a intuitivní principy osvědčené v herním průmyslu do prostředí správy oken.
+Hlavní cílovou skupinou jsou tak lidé zvyklí pracovat s CADovými systémy a podobnými aplikacemi a (současní a bývalí) hráči strategických her.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Závěr} \label{zaver}
