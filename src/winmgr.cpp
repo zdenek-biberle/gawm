@@ -9,15 +9,26 @@
 #include "winmgr.hpp"
 #include "utils.hpp"
 
+bool _hadError = false;
+
 int xerrorhandler(Display *dsp, XErrorEvent *error)
 {
 	char errorstring[128];
 	XGetErrorText(dsp, error->error_code, errorstring, 128);
  
 	cerr_line << "Xka umrely: " << errorstring << std::endl;
-	//throw std::runtime_error("Xka umrely");
-	
+	std::cout << "DED" << std::endl;
+	_hadError = true;
+
 	return False;
+}
+
+// Vrati true pokud nastala X chyba a nastavi flag chyby na false
+bool hadError()
+{
+	bool ret = _hadError;
+	_hadError = false;
+	return ret;
 }
 
 GawmWindowManager::GawmWindowManager()
@@ -63,9 +74,17 @@ void GawmWindowManager::render()
 	glClear(GL_COLOR_BUFFER_BIT); // FIXME: Způsobuje leaky!
 	glEnable(GL_TEXTURE_2D);
 	
+	std::vector<Window> vadnaOkna;
+	
 	for (auto it=sortedWindows.rbegin(); it!=sortedWindows.rend(); ++it)
 	{
 		(*it)->render(zoom);
+		if (hadError()) vadnaOkna.push_back((*it)->window);
+	}
+	
+	for (auto vadneOkno : vadnaOkna)
+	{
+		eraseWindow(vadneOkno);
 	}
 	
 	GLenum err;
@@ -269,6 +288,8 @@ void GawmWindowManager::insertWindow(Window window, int x, int y, int width, int
 	GawmWindow *w = new GawmWindow(display, screen, window, x, y, width, height);
 	knownWindows.insert(window, w);
 	sortedWindows.push_front(w);
+	
+	if (hadError()) eraseWindow(window);
 }
 
 void GawmWindowManager::eraseWindow(Window window)
@@ -276,16 +297,22 @@ void GawmWindowManager::eraseWindow(Window window)
 	GawmWindow *w = &knownWindows.at(window);
 	knownWindows.erase(window);
 	sortedWindows.remove(w);
+	
+	hadError();
 }
 
 void GawmWindowManager::configureWindow(Window window, int newX, int newY, int newWidth, int newHeight)
 {
 	knownWindows.at(window).configure(newX, newY, newWidth, newHeight);
+	
+	if (hadError()) eraseWindow(window);
 }
 
 void GawmWindowManager::setVisibilityOfWindow(Window window, bool visible)
 {
 	knownWindows.at(window).setVisible(visible);
+	
+	if (hadError()) eraseWindow(window);
 }
 
 void GawmWindowManager::raiseWindow(Window window)
@@ -294,11 +321,15 @@ void GawmWindowManager::raiseWindow(Window window)
 	GawmWindow *gw = &knownWindows.at(window);
 	sortedWindows.remove(gw);
 	sortedWindows.push_front(gw);
+	
+	if (hadError()) eraseWindow(window);
 }
 
 void GawmWindowManager::moveResizeWindow(GawmWindow *window, int newX, int newY, int newWidth, int newHeight)
 {
 	XMoveResizeWindow(display, window->window, newX, newY, newWidth, newHeight);
+	
+	if (hadError()) eraseWindow(window->window);
 }
 
 void GawmWindowManager::moveDesktop(int xdiff, int ydiff)

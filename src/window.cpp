@@ -5,6 +5,7 @@
 #include <X11/extensions/Xdamage.h>
 
 #include "debug.hpp"
+#include "winmgr.hpp"
 #include "window.hpp"
 #include "gawmGl.hpp"
 #include "utils.hpp"
@@ -63,6 +64,11 @@ void GawmWindow::reloadPixmap(){
 		XWindowAttributes attribs;
 		XGetWindowAttributes(display, window, &attribs);
 
+		if (hadError())
+		{
+			return;
+		}
+
 		int nFbConfigs;
 		auto visualid = XVisualIDFromVisual(attribs.visual);
 		auto fbConfigs = glXGetFBConfigs(display, screen, &nFbConfigs); // FIXME: Způsobuje leaky!
@@ -98,6 +104,11 @@ void GawmWindow::reloadPixmap(){
 			break;
 		}
 
+		if (hadError())
+		{
+			return;
+		}
+
 		if (i == nFbConfigs)
 		{
 			throw std::runtime_error("Nenašel jsem vhodný FBConfig pro pixmapu");
@@ -114,9 +125,20 @@ void GawmWindow::reloadPixmap(){
 			throw std::runtime_error("Nelze získat atributy okna");
 		}
 		
+		if (hadError())
+		{
+			return;
+		}
+		
 		if (wAttr.map_state == IsViewable)
 		{
 			pixmap = XCompositeNameWindowPixmap(display, window);
+
+			if (hadError())
+			{
+				return;
+			}
+			
 			dbg_w_pixmap << "pixmap: " << pixmap << std::endl;
 			glxPixmap = glXCreatePixmap(display, fbConfigs[i], pixmap, pixmapAttribs); // FIXME: Způsobuje leaky!
 			dbg_w_pixmap << "glxPixmap: " << glxPixmap << std::endl;

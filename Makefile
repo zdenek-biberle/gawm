@@ -62,7 +62,10 @@ runSmall: $(program)
 	xinit './$(program)' -- /usr/bin/Xephyr $(display) -host-cursor -screen 640x480 &
 
 runFull: $(program)
-	xinit './$(program)' -- /usr/bin/Xephyr $(display) -host-cursor -fullscreen -host-cursor &
+	xinit './$(program)' -- /usr/bin/Xephyr $(display) -host-cursor -fullscreen &
+
+runDemo: $(program)
+	xinit './$(program)' -- /usr/bin/Xephyr $(display) -host-cursor -screen 1280x720 &
 
 # Nespouštět, pokud neběží gawm!
 test_:
@@ -70,12 +73,27 @@ test_:
 	DISPLAY=$(display) xterm -geometry 68x29+30+30 &
 	DISPLAY=$(display) xterm -geometry 100x17+100+60 &
 
+demo_:
+	runner=$$(bash ./get_pid.sh './$(program)')
+	DISPLAY=$(display) sakura &
+	DISPLAY=$(display) sakura &
+	DISPLAY=$(display) gnome-calculator &
+	DISPLAY=$(display) pidgin &
+	DISPLAY=$(display) glxgears &
+	DISPLAY=$(display) geany &
+	DISPLAY=$(display) nemo --no-desktop &
+	DISPLAY=$(display) gimp &
+	DISPLAY=$(display) eog ~/Obrázky/blue-abstract-wide-wallpaper-1680x1050-010.jpg &
+	DISPLAY=$(display) nemo --no-desktop &
+
 test: run test_
 
 # Pro Bibu, kterej ma malej kompl
 testSmall: runSmall test_
 
 testFull: runFull test_
+
+testDemo: runDemo demo_
 
 # Test s více výpisy
 testDbg: debug

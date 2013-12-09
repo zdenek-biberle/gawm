@@ -10,6 +10,7 @@
 #include "window.hpp"
 
 int xerrorhandler(Display *dsp, XErrorEvent *error);
+bool hadError();
 
 class GawmWindowManager
 {
