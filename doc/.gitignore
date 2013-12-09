@@ -1,0 +1,12 @@
+*~
+
+*.aux
+*.dvi
+*.log
+*.out
+*.pdf
+*.ps
+*.backup
+*.toc
+
+gawm.kilepr
