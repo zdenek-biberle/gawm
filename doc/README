@@ -1,0 +1,41 @@
+Zdroj: Vzorova dokumentace 2. projektu do IZP a IUS.
+Vzorovou dokumentaci lehce prelozite do formatu PDF na stroji GNU/Linux s
+nainstalovanym balikem texlive-latex.
+
+#############################################################################
+### Moje poznamka ###########################################################
+#----------------------------------------------------------------------------
+# -R, --without-recommends => aby se vam neinstalovalo az 400MB dokumentace
+#                             kvuli doporuceni na texlive-latex-extra-doc
+#                             (pokud mate dost mista nebo se nevyznate v
+#                             baliccich, pak -R vynechte)
+#
+### Potrebne baliky #########################################################
+#----------------------------------------------------------------------------
+aptitude -R install texlive-latex-base texlive-lang-czechslovak csv2latex \
+                    texlive-latex-extra texlive-latex-recommended
+#
+### Jako editor doporucuji Kile #############################################
+#----------------------------------------------------------------------------
+aptitude -R install kile
+#
+#############################################################################
+
+POSTUP
+======
+
+1. Obrazky muzete vytvorit ve formatu PNG, JPG, FIG nebo EPS. Obrazky ulozte
+do adresare img/ a upravte soubor img/Makefile, pokud jste nevytvorili primo
+EPS (inspirujte se jeho aktualnim obsahem). Pro prevod do pozadovaneho EPS
+formatu budete pravdepodobne potrebovat sadu nastroju ImageMagick nebo
+transfig (stejne tak se bude pravdepodobne jmenovat balik ve vasi linuxove
+distribuci).
+
+2. Seznam literatury najdete ke konci souboru ifj12.tex. Tento seznam upravte
+pro ucely vasi dokumentace.
+
+3. Vyskladejte zdrojovou dokumentaci do formatu PDF prikazem:
+    $ make
+
+4. Vycisteni adresare od nepotrebnych souboru provedete prikazem:
+    $ make clean
