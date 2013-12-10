@@ -36,7 +36,7 @@
 \pagestyle{plain}
 \pagenumbering{roman}
 \setcounter{page}{1}
-\tableofcontents
+%\tableofcontents
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % textova zprava
@@ -68,9 +68,18 @@ Na rozdíl od náhledů aplikací známých například z Gnome Shell tak umož�
 \section{Implementace}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Projekt je implementován za pomocí knihovny Xlib a OpenGL (nebyly požity žádné frameworky jako Clutter nebo Qt).
+Projekt je implementován za pomocí knihovny Xlib \cite{Xlib} a OpenGL (nebyly požity žádné frameworky jako Clutter nebo Qt).
+Jako verzovací systém byl použit systém GIT.
 Na rozdíl od knihovny OpenGL bylo nutné knihovnu Xlib nastudovat, protože s ní nikdo neměl zkušenosti.
 
+Na webu jsme našli vzor minimálního kompozitního správce oken \cite{min_comp_wm}, ze kterého jsem zjistili jak je složité napsat správce oken.
+Použití kompozice bylo nutné pro implementaci zoomování.
+Částečně z toho důvodu jsme také použili OpenGL, aby jsme měli podporu hardwarového vykreslování.
+
+Postupně se ukázalo rozhraní systému Xwindow jako nedostatečné a to hlavně z důvodu odchytávání událostí a asynchronnosti.
+Událost je nemožné odchytit a při tom odeslat aplikaci.
+Mezitím co jsme vykreslovali okno, docházelo ke zmizení pixmapy.
+Vykreslování tedy často končí odmítnutím spojení s Xserverem a následným pádem našeho správce oken.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Testování}
@@ -79,18 +88,18 @@ Na rozdíl od knihovny OpenGL bylo nutné knihovnu Xlib nastudovat, protože s n
 Popsaný správce oken má za cíl přinést styl práce z průmyslem prověřených CADových aplikací a intuitivní principy osvědčené v herním průmyslu do prostředí správy oken.
 Hlavní cílovou skupinou jsou tak lidé zvyklí pracovat s CADovými systémy a podobnými aplikacemi a (současní a bývalí) hráči strategických her.
 
-Betatestování na cílové skupině bohužel nebylo provedeno, neboť se nepodařilo produkt odladit natolik,
-aby prošel alfatestováním jeho vývojáři. Strojaři nicméně byly nadšení při náznaku možnosti příchodu správce
+Beta-testování na cílové skupině bohužel nebylo provedeno, neboť se nepodařilo produkt odladit natolik,
+aby prošel alfa-testováním jeho vývojáři. Strojaři nicméně byly nadšení při náznaku možnosti příchodu správce
 oken užívajících popsaných principů.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Závěr} \label{zaver}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Je velká škoda že se správce okne nepodařilo dovést ke stabilní a implementaci, která by umožnila práci s okny
-i po odzoomování/přizoomování. Bohužel okení systém X neposkytuje jednoduchou cestu jak uvedené implementovat,
-mnohem úspěšnější by mohla implementace být při použití okeního systému Wayland, který ale bohužel není v současné
-době dostatečně stabilní a nebyl ani dostatek času na komplentní přepracování implementace od samého základu.
+Je velká škoda že se správce oken nepodařilo dovést ke stabilní a implementaci, která by umožnila práci s okny
+i po odzoomování/přizoomování. Bohužel okenní systém X neposkytuje jednoduchou cestu jak uvedené implementovat,
+mnohem úspěšnější by mohla implementace být při použití okenního systému Wayland, který ale bohužel není v současné
+době dostatečně stabilní a nebyl ani dostatek času na kompletní přepracování implementace od samého základu.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % seznam citované literatury: každá položka je definována příkazem
@@ -100,6 +109,10 @@ době dostatečně stabilní a nebyl ani dostatek času na komplentní přepraco
 \bibitem{Xlib}
 \href{http://tronche.com/gui/x/xlib/}{Xlib} \newline
 \href{http://tronche.com/gui/x/xlib/}{\nolinkurl{http://tronche.com/gui/x/xlib/}}
+
+\bibitem{min_comp_wm}
+\href{http://wingolog.org/archives/2008/07/26/so-you-want-to-build-a-compositor}{Minimální kompozitní správce oken} \newline
+\href{http://wingolog.org/archives/2008/07/26/so-you-want-to-build-a-compositor}{\nolinkurl{http://wingolog.org/archives/2008/07/26/so-you-want-to-build-a-compositor}}
 
 \end{thebibliography}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
