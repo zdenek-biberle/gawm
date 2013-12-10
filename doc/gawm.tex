@@ -79,9 +79,18 @@ Na rozdíl od knihovny OpenGL bylo nutné knihovnu Xlib nastudovat, protože s n
 Popsaný správce oken má za cíl přinést styl práce z průmyslem prověřených CADových aplikací a intuitivní principy osvědčené v herním průmyslu do prostředí správy oken.
 Hlavní cílovou skupinou jsou tak lidé zvyklí pracovat s CADovými systémy a podobnými aplikacemi a (současní a bývalí) hráči strategických her.
 
+Betatestování na cílové skupině bohužel nebylo provedeno, neboť se nepodařilo produkt odladit natolik,
+aby prošel alfatestováním jeho vývojáři. Strojaři nicméně byly nadšení při náznaku možnosti příchodu správce
+oken užívajících popsaných principů.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Závěr} \label{zaver}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Je velká škoda že se správce okne nepodařilo dovést ke stabilní a implementaci, která by umožnila práci s okny
+i po odzoomování/přizoomování. Bohužel okení systém X neposkytuje jednoduchou cestu jak uvedené implementovat,
+mnohem úspěšnější by mohla implementace být při použití okeního systému Wayland, který ale bohužel není v současné
+době dostatečně stabilní a nebyl ani dostatek času na komplentní přepracování implementace od samého základu.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % seznam citované literatury: každá položka je definována příkazem
